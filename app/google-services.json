@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "155839716311",
+    "project_id": "hit-first-api",
+    "storage_bucket": "hit-first-api.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155839716311:android:a744034d4ddc1763214992",
+        "android_client_info": {
+          "package_name": "com.example.navigtion_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTodpxAK1JOS1hC1HLfRhD5Qqo37Php3w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
