@@ -3,4 +3,18 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="purple">#E466FA</color>
+<color name="purple_s">#8617A2</color>
+<color name="lightBlue">#F0F3FA</color>
+<color name="skyBlue">#5996EF</color>
+<color name="lightBlueBtn">#ECF9FF</color>
+<color name="blueBtn">#1499D0</color>
+<color name="lightOrangeBtn">#FFFF7E</color>
+<color name="orangeBtn">#DD743C</color>
+<color name="lightPurpleBtn">#EDEEFF</color>
+<color name="purpleBtn">#6735A4</color>
+<color name="blueCat">#1E73C5</color>
+<color name="brown">#F0D9C1</color>
+<color name="lightGrey">#BCBCBC</color>
+<color name="lightbrown">#E2D9CA</color>
 </resources>
