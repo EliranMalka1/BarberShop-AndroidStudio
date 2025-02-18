@@ -28,6 +28,9 @@
         <action
             android:id="@+id/action_fragment_main_to_fragment_intro"
             app:destination="@id/fragment_intro" />
+        <action
+            android:id="@+id/action_fragment_main_to_gender"
+            app:destination="@id/gender" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
@@ -56,4 +59,18 @@
             android:id="@+id/action_profile_to_fragment_main"
             app:destination="@id/fragment_main" />
     </fragment>
+    <fragment
+        android:id="@+id/gender"
+        android:name="com.example.navigtion_app.frams.gender"
+        android:label="fragment_gender"
+        tools:layout="@layout/fragment_gender" >
+        <action
+            android:id="@+id/action_gender_to_new_apointment"
+            app:destination="@id/new_apointment" />
+    </fragment>
+    <fragment
+        android:id="@+id/new_apointment"
+        android:name="com.example.navigtion_app.frams.new_apointment"
+        android:label="fragment_new_apointment"
+        tools:layout="@layout/fragment_new_apointment" />
 </navigation>
