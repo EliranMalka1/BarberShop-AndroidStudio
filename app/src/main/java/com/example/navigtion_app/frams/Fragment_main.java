@@ -20,6 +20,11 @@ import com.example.navigtion_app.models.ButtonItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.widget.Toast;
+
 
 public class Fragment_main extends Fragment {
 
@@ -61,7 +66,33 @@ public class Fragment_main extends Fragment {
         logOut.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_intro);
+                logOut.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AlertDialog.Builder(getContext())
+                                .setTitle("Logout")
+                                .setMessage("Are you sure you want to log out?")
+                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+
+                                        Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_intro);
+                                        Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .setNegativeButton("No", null)
+                                .show();
+                    }
+                });
+
+            }
+        });
+
+        ImageView updateinfo=view.findViewById(R.id.UpdateInfo);
+        updateinfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_profile);
             }
         });
     }
