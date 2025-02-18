@@ -17,4 +17,8 @@
 <color name="brown">#F0D9C1</color>
 <color name="lightGrey">#BCBCBC</color>
 <color name="lightbrown">#E2D9CA</color>
+    <color name="primary_blue">#2D5EFF</color>
+    <color name="light_background">#F5F7FA</color>
+    <color name="gray">#A0A4A8</color>
+
 </resources>

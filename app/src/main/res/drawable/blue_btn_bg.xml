@@ -12,7 +12,7 @@
     <!-- הכפתור עצמו -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/purple"/>
+            <solid android:color="#2A5470"/>
             <corners android:radius="18dp"/>
         </shape>
     </item>
