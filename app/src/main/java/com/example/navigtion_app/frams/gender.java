@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.example.navigtion_app.R;
 
@@ -65,7 +66,7 @@ public class gender extends Fragment {
 
         View view=inflater.inflate(R.layout.fragment_gender, container, false);
 
-        Button shortHair=view.findViewById(R.id.button_man);
+        LinearLayout shortHair=view.findViewById(R.id.button_man);
         shortHair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,7 +74,7 @@ public class gender extends Fragment {
             }
         });
 
-        Button longHair=view.findViewById(R.id.button_woman);
+        LinearLayout longHair=view.findViewById(R.id.button_woman);
         longHair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
