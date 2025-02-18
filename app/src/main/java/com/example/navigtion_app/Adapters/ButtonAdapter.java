@@ -1,5 +1,6 @@
 package com.example.navigtion_app.Adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -7,6 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -48,16 +51,16 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         // ניווט ל-Fragment בעת לחיצה
         holder.itemView.setOnClickListener(v -> {
             try {
-                Fragment fragment = item.getTargetFragment().newInstance();
-                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.replace(R.id.fragmentContainerView, fragment); // ודא שיש לך FrameLayout עם ID זה ב-XML
-                transaction.addToBackStack(null);
-                transaction.commit();
+                NavController navController = Navigation.findNavController((Activity) v.getContext(), R.id.fragmentContainerView);
+                int actionId = item.getNavigationActionId();
+                if (actionId != 0) {
+                    navController.navigate(actionId);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+
     }
 
     @Override

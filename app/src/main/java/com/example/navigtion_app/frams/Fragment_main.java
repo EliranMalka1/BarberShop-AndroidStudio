@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import com.example.navigtion_app.Adapters.ButtonAdapter;
@@ -22,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.view.LayoutInflater;
 import android.widget.Toast;
 
 
@@ -51,15 +49,15 @@ public class Fragment_main extends Fragment {
 
         // יצירת רשימת הכפתורים
         buttonList = new ArrayList<>();
-        buttonList.add(new ButtonItem("New Haircut", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), profile.class));
-        buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), profile.class));
-        buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), profile.class));
-        buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), profile.class));
+        buttonList.add(new ButtonItem("New Haircut", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), R.id.action_fragment_main_to_profile));
+        buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_profile));
+        buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), R.id.action_fragment_main_to_profile));
+        buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), R.id.action_fragment_main_to_profile));
 
-
-        // יצירת מתאם ושיוכו ל-RecyclerView
+// יצירת מתאם ושיוכו ל-RecyclerView
         buttonAdapter = new ButtonAdapter(requireActivity(), buttonList);
         recyclerView.setAdapter(buttonAdapter);
+
 
 
         ImageView logOut = view.findViewById(R.id.logOut);

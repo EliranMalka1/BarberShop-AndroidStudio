@@ -51,5 +51,9 @@
         android:id="@+id/profile"
         android:name="com.example.navigtion_app.frams.profile"
         android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_profile_to_fragment_main"
+            app:destination="@id/fragment_main" />
+    </fragment>
 </navigation>
