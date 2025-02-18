@@ -28,7 +28,7 @@ public class Fragment_main extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private MediaPlayer mediaPlayer;
+
     public Fragment_main() {
         // Required empty public constructor
     }
@@ -65,31 +65,9 @@ public class Fragment_main extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
-        ImageView gifImageView = view.findViewById(R.id.gifImageView);
-        // Load the GIF using Glide
-        Glide.with(this)
-                .asGif()
-                .load(R.drawable.pedro) // Replace with your GIF resource
-                .into(gifImageView);
-
-        mediaPlayer = MediaPlayer.create(getContext(), R.raw.sound); // Replace 'sound' with your file name
-        if (mediaPlayer != null) {
-            mediaPlayer.setLooping(true);
-            mediaPlayer.start();
-        }
-        return view;
+        return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
 
-        // Release the MediaPlayer when the fragment is destroyed
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
-    }
 
 }
