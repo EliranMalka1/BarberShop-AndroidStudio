@@ -79,12 +79,19 @@ public class MainActivity extends AppCompatActivity {
         String email = ((EditText) findViewById(R.id.Email)).getText().toString().trim();
         String password = ((EditText) findViewById(R.id.password)).getText().toString().trim();
         String phone = ((EditText) findViewById(R.id.phone)).getText().toString().trim();
+        String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString().trim(); // New Full Name field
+        String repass = ((EditText) findViewById(R.id.repass)).getText().toString().trim();
 
-        if (email.isEmpty() || password.isEmpty() || phone.isEmpty()) {
+        if (email.isEmpty() || password.isEmpty() || phone.isEmpty()|| fullName.isEmpty() || repass.isEmpty()) {
             Toast.makeText(MainActivity.this, "Please fill all the fields", Toast.LENGTH_SHORT).show();
             if (callback != null) {
                 callback.onRegisterResult(false, "All fields are required.");
             }
+            return;
+        }
+
+        if (! password.equals(repass) ) {
+            Toast.makeText(MainActivity.this, "Password mismatch", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            AddData(email, phone);
+                            AddData(email, phone, fullName);
                             Toast.makeText(MainActivity.this, "Register successful.", Toast.LENGTH_SHORT).show();
                             if (callback != null) {
                                 callback.onRegisterResult(true, "Success");
@@ -122,10 +129,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void AddData(String email,String phone) {
+    public void AddData(String email,String phone, String fullName) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("users").child(phone);
-        User user = new User(email, phone);
+        User user = new User(email, phone, fullName);
         myRef.setValue(user);
 
     }

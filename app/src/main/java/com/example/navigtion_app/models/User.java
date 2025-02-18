@@ -4,9 +4,13 @@ public class User {
      String email;
      String phone;
 
-    public User(String email, String phone) {
+     String fullName;
+
+    public User(String email, String phone,String fullName) {
         this.email = email;
         this.phone = phone;
+        this.fullName = fullName;
+
     }
 
     public String getEmail() {
@@ -15,6 +19,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getfullName() {
+        return fullName;
+    }
+
+    public void setfullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getPhone() {
