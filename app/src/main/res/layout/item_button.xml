@@ -13,7 +13,7 @@
         android:padding="10dp"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="@color/card_color">
+        >
 
         <!-- אייקון -->
         <ImageView

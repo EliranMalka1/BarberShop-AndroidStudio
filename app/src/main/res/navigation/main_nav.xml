@@ -25,6 +25,9 @@
         <action
             android:id="@+id/action_fragment_main_to_profile"
             app:destination="@id/profile" />
+        <action
+            android:id="@+id/action_fragment_main_to_fragment_intro"
+            app:destination="@id/fragment_intro" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"

@@ -4,12 +4,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+
 import com.example.navigtion_app.Adapters.ButtonAdapter;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.models.ButtonItem;
@@ -51,5 +55,15 @@ public class Fragment_main extends Fragment {
         // יצירת מתאם ושיוכו ל-RecyclerView
         buttonAdapter = new ButtonAdapter(requireActivity(), buttonList);
         recyclerView.setAdapter(buttonAdapter);
+
+
+        ImageView logOut = view.findViewById(R.id.logOut);
+        logOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_intro);
+            }
+        });
     }
+
 }
