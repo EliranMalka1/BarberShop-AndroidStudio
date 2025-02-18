@@ -21,7 +21,11 @@
         android:id="@+id/fragment_main"
         android:name="com.example.navigtion_app.frams.Fragment_main"
         android:label="fragment_main"
-        tools:layout="@layout/fragment_main" />
+        tools:layout="@layout/fragment_main" >
+        <action
+            android:id="@+id/action_fragment_main_to_profile"
+            app:destination="@id/profile" />
+    </fragment>
     <fragment
         android:id="@+id/fragment_reg"
         android:name="com.example.navigtion_app.frams.Fragment_reg"
@@ -40,4 +44,9 @@
             android:id="@+id/action_fragment_intro_to_fragment_login"
             app:destination="@id/fragment_login" />
     </fragment>
+    <fragment
+        android:id="@+id/profile"
+        android:name="com.example.navigtion_app.frams.profile"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

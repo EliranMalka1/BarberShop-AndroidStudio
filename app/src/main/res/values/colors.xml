@@ -20,5 +20,11 @@
     <color name="primary_blue">#2D5EFF</color>
     <color name="light_background">#F5F7FA</color>
     <color name="gray">#A0A4A8</color>
+    <color name="blue">#007BFF</color>
+    <color name="green">#28A745</color>
+    <color name="orange">#FD7E14</color>
+    <color name="purple2">#6F42C1</color>
+    <color name="card_color">#F5F5F5</color> <!-- רקע כללי לכפתורים -->
+
 
 </resources>
