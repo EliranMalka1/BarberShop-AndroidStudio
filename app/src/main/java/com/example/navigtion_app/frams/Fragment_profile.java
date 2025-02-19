@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.navigtion_app.R;
+import com.example.navigtion_app.UpdateCallback;
 import com.example.navigtion_app.models.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -56,9 +58,14 @@ public class Fragment_profile extends Fragment {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_fragment_profile_to_fragment_main);
+                updateUserData(success -> {
+                    if (success) {
+                        Navigation.findNavController(view).navigate(R.id.action_fragment_profile_to_fragment_main);
+                    }
+                });
             }
         });
+
         return view;
     }
 
@@ -73,12 +80,12 @@ public class Fragment_profile extends Fragment {
                         emailEditText.setText(user.getEmail());
                         phoneEditText.setText(user.getPhone());
 
-                        // בדיקת ערכים שהתקבלו מה-Database
+
                         Log.d("FirebaseData", "Full Name: " + user.getFullName());
                         Log.d("FirebaseData", "Email: " + user.getEmail());
                         Log.d("FirebaseData", "Phone: " + user.getPhone());
 
-                        // עדכון טקסט ברכת השלום
+
                         greetingTextView.setText(String.format("Hello %s", user.getFullName()));
                     } else {
                         Log.e("FirebaseError", "User object is null");
@@ -95,4 +102,59 @@ public class Fragment_profile extends Fragment {
         });
     }
 
+
+    private void updateUserData(UpdateCallback callback) {
+        userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    User existingUser = snapshot.getValue(User.class);
+
+                    if (existingUser != null) {
+                        // קבלת הערכים החדשים מהשדות, אם הם ריקים – השתמש בערכים הישנים
+                        String newFullName = fullNameEditText.getText().toString().trim();
+                        String newEmail = emailEditText.getText().toString().trim();
+                        String newPhone = phoneEditText.getText().toString().trim();
+
+                        if (newFullName.isEmpty()) newFullName = existingUser.getFullName();
+                        if (newEmail.isEmpty()) newEmail = existingUser.getEmail();
+                        if (newPhone.isEmpty()) newPhone = existingUser.getPhone();
+
+                        // יצירת אובייקט משתמש חדש
+                        User updatedUser = new User(newEmail, newPhone, newFullName);
+
+                        // עדכון הנתונים ב-Firebase
+                        userDatabaseRef.setValue(updatedUser).addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), "Details updated successfully", Toast.LENGTH_SHORT).show();
+                                callback.onUpdateResult(true); // העדכון הצליח
+                            } else {
+                                Toast.makeText(getContext(), "Failed to update details", Toast.LENGTH_SHORT).show();
+                                callback.onUpdateResult(false); // העדכון נכשל
+                            }
+                        });
+                    } else {
+                        Log.e("FirebaseError", "Existing user data is null");
+                        callback.onUpdateResult(false);
+                    }
+                } else {
+                    Log.e("FirebaseError", "User snapshot does not exist");
+                    callback.onUpdateResult(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseError", "Database error: " + error.getMessage());
+                callback.onUpdateResult(false);
+            }
+        });
+
+    }
+
+
 }
+
+
+
+
