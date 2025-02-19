@@ -1,6 +1,8 @@
 package com.example.navigtion_app.frams;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,54 +19,51 @@ import androidx.navigation.Navigation;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.UpdateCallback;
 import com.example.navigtion_app.models.User;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Fragment_profile extends Fragment {
 
     private EditText fullNameEditText, emailEditText, phoneEditText;
     private TextView greetingTextView;
-
     private DatabaseReference userDatabaseRef;
     private FirebaseAuth auth;
+    private String pendingEmail = null;
+    private AuthStateListener authStateListener;
 
-    public Fragment_profile() {
-        // Required empty public constructor
-    }
+    public Fragment_profile() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // אתחול רכיבי התצוגה
         fullNameEditText = view.findViewById(R.id.fullName);
         emailEditText = view.findViewById(R.id.Email);
         phoneEditText = view.findViewById(R.id.phone);
         greetingTextView = view.findViewById(R.id.textView7);
 
         auth = FirebaseAuth.getInstance();
-        userDatabaseRef = FirebaseDatabase.getInstance().getReference("users")
-                .child(auth.getCurrentUser().getUid());
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(auth.getCurrentUser().getUid());
 
         loadUserData();
+
         Button update = view.findViewById(R.id.update);
-        update.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateUserData(success -> {
-                    if (success) {
-                        Navigation.findNavController(view).navigate(R.id.action_fragment_profile_to_fragment_main);
-                    }
-                });
+        update.setOnClickListener(v -> updateUserData(success -> {
+            if (success) {
+                navigateToMain();
             }
-        });
+        }));
 
         return view;
     }
@@ -80,28 +79,15 @@ public class Fragment_profile extends Fragment {
                         emailEditText.setText(user.getEmail());
                         phoneEditText.setText(user.getPhone());
 
-
-                        Log.d("FirebaseData", "Full Name: " + user.getFullName());
-                        Log.d("FirebaseData", "Email: " + user.getEmail());
-                        Log.d("FirebaseData", "Phone: " + user.getPhone());
-
-
                         greetingTextView.setText(String.format("Hello %s", user.getFullName()));
-                    } else {
-                        Log.e("FirebaseError", "User object is null");
                     }
-                } else {
-                    Log.e("FirebaseError", "Snapshot does not exist");
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("FirebaseError", "Database error: " + error.getMessage());
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
-
 
     private void updateUserData(UpdateCallback callback) {
         userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -109,52 +95,130 @@ public class Fragment_profile extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     User existingUser = snapshot.getValue(User.class);
+                    FirebaseUser firebaseUser = auth.getCurrentUser();
 
-                    if (existingUser != null) {
-                        // קבלת הערכים החדשים מהשדות, אם הם ריקים – השתמש בערכים הישנים
-                        String newFullName = fullNameEditText.getText().toString().trim();
-                        String newEmail = emailEditText.getText().toString().trim();
-                        String newPhone = phoneEditText.getText().toString().trim();
+                    if (firebaseUser == null || existingUser == null) {
+                        callback.onUpdateResult(false);
+                        return;
+                    }
 
-                        if (newFullName.isEmpty()) newFullName = existingUser.getFullName();
-                        if (newEmail.isEmpty()) newEmail = existingUser.getEmail();
-                        if (newPhone.isEmpty()) newPhone = existingUser.getPhone();
+                    final String[] newFullName = { fullNameEditText.getText().toString().trim() };
+                    final String[] newEmail = { emailEditText.getText().toString().trim() };
+                    final String[] newPhone = { phoneEditText.getText().toString().trim() };
 
-                        // יצירת אובייקט משתמש חדש
-                        User updatedUser = new User(newEmail, newPhone, newFullName);
+                    if (newFullName[0].isEmpty()) newFullName[0] = existingUser.getFullName();
+                    if (newEmail[0].isEmpty()) newEmail[0] = existingUser.getEmail();
+                    if (newPhone[0].isEmpty()) newPhone[0] = existingUser.getPhone();
 
-                        // עדכון הנתונים ב-Firebase
-                        userDatabaseRef.setValue(updatedUser).addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(getContext(), "Details updated successfully", Toast.LENGTH_SHORT).show();
-                                callback.onUpdateResult(true); // העדכון הצליח
-                            } else {
-                                Toast.makeText(getContext(), "Failed to update details", Toast.LENGTH_SHORT).show();
-                                callback.onUpdateResult(false); // העדכון נכשל
-                            }
+                    if (!newEmail[0].equals(existingUser.getEmail())) {
+                        showPasswordDialog(password -> {
+                            reauthenticateAndSendVerification(firebaseUser, newEmail[0], password, newFullName[0], newPhone[0], callback);
                         });
                     } else {
-                        Log.e("FirebaseError", "Existing user data is null");
-                        callback.onUpdateResult(false);
+                        updateDatabase(newEmail[0], newPhone[0], newFullName[0], callback);
+                        navigateToMain();
                     }
-                } else {
-                    Log.e("FirebaseError", "User snapshot does not exist");
-                    callback.onUpdateResult(false);
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("FirebaseError", "Database error: " + error.getMessage());
+            public void onCancelled(@NonNull DatabaseError error) {}
+        });
+    }
+
+    private void reauthenticateAndSendVerification(FirebaseUser user, String newEmail, String password, String newFullName, String newPhone, UpdateCallback callback) {
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d("FirebaseAuth", "Reauthentication successful");
+                pendingEmail = newEmail;
+
+                user.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(verificationTask -> {
+                    if (verificationTask.isSuccessful()) {
+                        Toast.makeText(getContext(), "A verification email has been sent. Please check your inbox.", Toast.LENGTH_LONG).show();
+
+                        authStateListener = firebaseAuth -> {
+                            FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+                            if (currentUser != null && pendingEmail != null && currentUser.isEmailVerified()) {
+                                currentUser.updateEmail(pendingEmail).addOnCompleteListener(emailUpdateTask -> {
+                                    if (emailUpdateTask.isSuccessful()) {
+                                        Log.d("FirebaseAuth", "Email successfully updated in FirebaseAuth");
+
+                                        updateDatabase(pendingEmail, phoneEditText.getText().toString().trim(), fullNameEditText.getText().toString().trim(), success -> {
+                                            if (success) {
+                                                Log.d("FirebaseDB", "Database updated with new email");
+                                            }
+                                        });
+                                    }
+                                    auth.removeAuthStateListener(authStateListener);
+                                });
+                            }
+                        };
+
+                        auth.addAuthStateListener(authStateListener);
+                        auth.signOut();
+                        navigateToLogin();
+                    } else {
+                        Log.e("FirebaseAuth", "Failed to send verification email", verificationTask.getException());
+                        Toast.makeText(getContext(), "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                        callback.onUpdateResult(false);
+                    }
+                });
+
+            } else {
+                Log.e("FirebaseAuth", "Reauthentication failed", task.getException());
+                Toast.makeText(getContext(), "Reauthentication failed. Please try again.", Toast.LENGTH_SHORT).show();
                 callback.onUpdateResult(false);
             }
         });
-
     }
 
+    private void navigateToMain() {
+        if (isAdded() && getView() != null) {
+            Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
+        }
+    }
 
+    private void navigateToLogin() {
+        if (isAdded() && getView() != null) {
+            Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_login);
+        }
+    }
+
+    private void updateDatabase(String newEmail, String newPhone, String newFullName, UpdateCallback callback) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("email", newEmail);
+        updates.put("phone", newPhone);
+        updates.put("fullName", newFullName);
+
+        userDatabaseRef.updateChildren(updates).addOnCompleteListener(task -> {
+            callback.onUpdateResult(task.isSuccessful());
+        });
+    }
+
+    private void showPasswordDialog(PasswordCallback callback) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Enter Password");
+        builder.setMessage("To update your email, please enter your current password:");
+
+        final EditText passwordInput = new EditText(requireContext());
+        passwordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(passwordInput);
+
+        builder.setPositiveButton("Confirm", (dialog, which) -> {
+            String password = passwordInput.getText().toString().trim();
+            if (!password.isEmpty()) {
+                callback.onPasswordEntered(password);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+
+        builder.show();
+    }
+
+    interface PasswordCallback {
+        void onPasswordEntered(String password);
+    }
 }
-
-
-
-

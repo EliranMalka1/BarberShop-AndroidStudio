@@ -33,28 +33,30 @@ android:textColor="@color/black"
 android:layout_marginBottom="28dp"/>
 
 
-<EditText
-android:id="@+id/editEmail"
-android:layout_width="match_parent"
-android:layout_height="54dp"
-android:hint="Email"
-android:background="@drawable/rounded_border"
-android:padding="14dp"
-android:textColor="@color/black"
-android:textColorHint="@color/gray"
-android:layout_marginBottom="20dp"/>
+    <EditText
+        android:id="@+id/editEmail"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/rounded_border"
+        android:hint="Email"
+        android:padding="14dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray" />
 
-<EditText
-android:id="@+id/editPassword"
-android:layout_width="match_parent"
-android:layout_height="54dp"
-android:hint="Password"
-android:background="@drawable/rounded_border"
-android:padding="14dp"
-android:inputType="textPassword"
-android:textColor="@color/black"
-android:textColorHint="@color/gray"
-android:layout_marginBottom="40dp"/>
+    <EditText
+        android:id="@+id/editPassword"
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginBottom="40dp"
+        android:background="@drawable/rounded_border"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="14dp"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray" />
 
 <Button
 android:id="@+id/login_button"
