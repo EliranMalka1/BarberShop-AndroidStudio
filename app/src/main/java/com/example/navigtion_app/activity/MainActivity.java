@@ -12,7 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.navigtion_app.R;
-import com.example.navigtion_app.models.User;
+import com.example.navigtion_app.models.*;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -129,12 +129,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void AddData(String email,String phone, String fullName) {
+    public void AddData(String email, String phone, String fullName) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("users").child(phone);
-        User user = new User(email, phone, fullName);
-        myRef.setValue(user);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String uid = auth.getCurrentUser().getUid();
 
+        // Optionally, update your User object with the uid:
+        User user = new User(email, phone, fullName);
+        user.setId(uid);
+
+        DatabaseReference myRef = database.getReference("users").child(uid);
+        myRef.setValue(user);
     }
+
 
 }

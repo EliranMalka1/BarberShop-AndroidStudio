@@ -86,8 +86,8 @@ public class Fragment_main extends Fragment {
             }
         });
 
-        ImageView updateinfo=view.findViewById(R.id.UpdateInfo);
-        updateinfo.setOnClickListener(new View.OnClickListener() {
+        ImageView updateInfo =view.findViewById(R.id.UpdateInfo);
+        updateInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_profile);

@@ -22,7 +22,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class profile extends Fragment {
+import java.util.Objects;
+
+public class Fragment_profile extends Fragment {
 
     private EditText fullNameEditText, emailEditText, phoneEditText;
     private TextView greetingTextView;
@@ -30,7 +32,7 @@ public class profile extends Fragment {
     private DatabaseReference userDatabaseRef;
     private FirebaseAuth auth;
 
-    public profile() {
+    public Fragment_profile() {
         // Required empty public constructor
     }
 
@@ -46,7 +48,8 @@ public class profile extends Fragment {
         greetingTextView = view.findViewById(R.id.textView7);
 
         auth = FirebaseAuth.getInstance();
-        userDatabaseRef = FirebaseDatabase.getInstance().getReference("Users").child(auth.getCurrentUser().getUid());
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(auth.getCurrentUser().getUid());
 
         loadUserData();
         Button update = view.findViewById(R.id.update);
@@ -66,17 +69,17 @@ public class profile extends Fragment {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
-                        fullNameEditText.setText(user.getfullName());
+                        fullNameEditText.setText(user.getFullName());
                         emailEditText.setText(user.getEmail());
                         phoneEditText.setText(user.getPhone());
 
                         // בדיקת ערכים שהתקבלו מה-Database
-                        Log.d("FirebaseData", "Full Name: " + user.getfullName());
+                        Log.d("FirebaseData", "Full Name: " + user.getFullName());
                         Log.d("FirebaseData", "Email: " + user.getEmail());
                         Log.d("FirebaseData", "Phone: " + user.getPhone());
 
                         // עדכון טקסט ברכת השלום
-                        greetingTextView.setText("Hello " + user.getfullName());
+                        greetingTextView.setText(String.format("Hello %s", user.getFullName()));
                     } else {
                         Log.e("FirebaseError", "User object is null");
                     }

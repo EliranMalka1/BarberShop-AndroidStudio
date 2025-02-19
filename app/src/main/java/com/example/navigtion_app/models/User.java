@@ -1,44 +1,54 @@
 package com.example.navigtion_app.models;
 
+import java.util.UUID;
+
 public class User {
-     String email;
-     String phone;
+    private String id;
+    private String email;
+    private String phone;
+    private String fullName;
 
-     String fullName;
+    // Default constructor required for Firebase deserialization
+    public User() {
+    }
 
-    public User(String email, String phone,String fullName) {
+    public User(String email, String phone, String fullName) {
+        // Generate a unique ID using UUID
+        this.id = UUID.randomUUID().toString();
         this.email = email;
         this.phone = phone;
         this.fullName = fullName;
-
     }
 
-    public User()
-    {
-
+    // Getter and setter for id
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
+    // Getter and setter for email
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public String getfullName() {
-        return fullName;
-    }
-
-    public void setfullName(String fullName) {
-        this.fullName = fullName;
-    }
-
+    // Getter and setter for phone
     public String getPhone() {
         return phone;
     }
-
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    // Getter and setter for fullName
+    public String getFullName() {
+        return fullName;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }

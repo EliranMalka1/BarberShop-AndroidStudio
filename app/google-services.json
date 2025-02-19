@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "155839716311",
-    "project_id": "hit-first-api",
-    "storage_bucket": "hit-first-api.firebasestorage.app"
+    "project_number": "69681112532",
+    "firebase_url": "https://app-data-bd40e-default-rtdb.firebaseio.com",
+    "project_id": "app-data-bd40e",
+    "storage_bucket": "app-data-bd40e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:155839716311:android:a744034d4ddc1763214992",
+        "mobilesdk_app_id": "1:69681112532:android:0b07c2d4fa1253a7d66241",
         "android_client_info": {
           "package_name": "com.example.navigtion_app"
         }
@@ -15,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDTodpxAK1JOS1hC1HLfRhD5Qqo37Php3w"
+          "current_key": "AIzaSyCCRgH_fNOWy4XAd0B-2T2t3Dlq7oUojsA"
         }
       ],
       "services": {
