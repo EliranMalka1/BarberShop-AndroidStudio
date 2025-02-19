@@ -56,7 +56,7 @@ public class Fragment_profile extends Fragment {
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_profile_to_fragment_main);
+                Navigation.findNavController(view).navigate(R.id.action_fragment_profile_to_fragment_main);
             }
         });
         return view;

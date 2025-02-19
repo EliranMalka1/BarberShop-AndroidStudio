@@ -23,14 +23,14 @@
         android:label="fragment_main"
         tools:layout="@layout/fragment_main" >
         <action
-            android:id="@+id/action_fragment_main_to_profile"
-            app:destination="@id/profile" />
-        <action
             android:id="@+id/action_fragment_main_to_fragment_intro"
             app:destination="@id/fragment_intro" />
         <action
             android:id="@+id/action_fragment_main_to_gender"
             app:destination="@id/gender" />
+        <action
+            android:id="@+id/action_fragment_main_to_fragment_profile"
+            app:destination="@id/fragment_profile" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
@@ -51,15 +51,6 @@
             app:destination="@id/fragment_login" />
     </fragment>
     <fragment
-        android:id="@+id/profile"
-        android:name="com.example.navigtion_app.frams.profile"
-        android:label="fragment_profile"
-        tools:layout="@layout/fragment_profile" >
-        <action
-            android:id="@+id/action_profile_to_fragment_main"
-            app:destination="@id/fragment_main" />
-    </fragment>
-    <fragment
         android:id="@+id/gender"
         android:name="com.example.navigtion_app.frams.gender"
         android:label="fragment_gender"
@@ -73,4 +64,13 @@
         android:name="com.example.navigtion_app.frams.new_apointment"
         android:label="fragment_new_apointment"
         tools:layout="@layout/fragment_new_apointment" />
+    <fragment
+        android:id="@+id/fragment_profile"
+        android:name="com.example.navigtion_app.frams.Fragment_profile"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" >
+        <action
+            android:id="@+id/action_fragment_profile_to_fragment_main"
+            app:destination="@id/fragment_main" />
+    </fragment>
 </navigation>
