@@ -9,17 +9,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.activity.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class Fragment_login extends Fragment {
 
     private FirebaseAuth mAuth;
+    private DatabaseReference userDatabaseRef;
 
     public Fragment_login() {}
 
@@ -38,7 +43,7 @@ public class Fragment_login extends Fragment {
                         if (user != null) {
                             user.reload().addOnCompleteListener(task -> {
                                 if (user.isEmailVerified()) {
-                                    Navigation.findNavController(view).navigate(R.id.action_fragment_login_to_fragment_main);
+                                    checkUserTypeAndNavigate(user.getUid(), view);
                                 } else {
                                     Toast.makeText(getContext(), "Your email is not verified. Please check your inbox.", Toast.LENGTH_LONG).show();
                                     mAuth.signOut();
@@ -56,5 +61,34 @@ public class Fragment_login extends Fragment {
         register_button.setOnClickListener(v -> Navigation.findNavController(view).navigate(R.id.action_fragment_login_to_fragment_reg));
 
         return view;
+    }
+
+    /**
+     * בודק את סוג המשתמש בבסיס הנתונים ומעביר למסך המתאים
+     */
+    private void checkUserTypeAndNavigate(String userId, View view) {
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+
+        userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String userType = snapshot.child("type").getValue(String.class);
+                    if ("manager".equals(userType)) {
+                        Navigation.findNavController(view).navigate(R.id.action_fragment_login_to_managerPage);
+                    } else {
+                        Navigation.findNavController(view).navigate(R.id.action_fragment_login_to_fragment_main);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "User data not found", Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(view).navigate(R.id.action_fragment_login_to_fragment_main);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

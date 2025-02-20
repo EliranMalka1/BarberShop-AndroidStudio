@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_fragment_login_to_fragment_reg"
             app:destination="@id/fragment_reg" />
+        <action
+            android:id="@+id/action_fragment_login_to_managerPage"
+            app:destination="@id/managerPage" />
     </fragment>
     <fragment
         android:id="@+id/fragment_main"
@@ -75,5 +78,17 @@
         <action
             android:id="@+id/action_fragment_profile_to_fragment_login"
             app:destination="@id/fragment_login" />
+    </fragment>
+    <fragment
+        android:id="@+id/managerPage"
+        android:name="com.example.navigtion_app.frams.managerPage"
+        android:label="fragment_manager_page"
+        tools:layout="@layout/fragment_manager_page" >
+        <action
+            android:id="@+id/action_managerPage_to_fragment_login"
+            app:destination="@id/fragment_login" />
+        <action
+            android:id="@+id/action_managerPage_to_fragment_profile"
+            app:destination="@id/fragment_profile" />
     </fragment>
 </navigation>
