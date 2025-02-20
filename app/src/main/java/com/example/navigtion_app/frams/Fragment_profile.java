@@ -204,7 +204,7 @@ public class Fragment_profile extends Fragment {
     }
 
     private void updateDatabase(String newEmail, String newPhone, String newFullName, UpdateCallback callback) {
-        User user = new User(newFullName, newEmail, newPhone); // יצירת אובייקט עם הנתונים החדשים
+        User user = new User(newEmail, newPhone,newFullName); // יצירת אובייקט עם הנתונים החדשים
 
         userDatabaseRef.setValue(user).addOnCompleteListener(task -> {
             callback.onUpdateResult(task.isSuccessful());
