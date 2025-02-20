@@ -40,7 +40,7 @@
                     android:id="@+id/user_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center|center_horizontal|center_vertical"
+                    android:gravity="center"
                     android:text="Hello Manager"
                     android:textColor="@android:color/black"
                     android:textSize="18sp"
@@ -50,8 +50,6 @@
                     android:id="@+id/subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center|center_horizontal|center_vertical"
-                    android:gravity="center|center_horizontal|center_vertical"
                     android:text="What we do today?"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="14sp" />
@@ -83,7 +81,7 @@
     <!-- כפתורים -->
     <LinearLayout
         android:id="@+id/buttons_layout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
@@ -95,7 +93,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_card">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/add_barber_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -104,19 +102,25 @@
             android:padding="12dp"
             android:text="Add Barber"
             android:textColor="@android:color/white"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_plus"
+            app:iconTint="@android:color/white"
+            app:cornerRadius="16dp"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/remove_barber_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
             android:layout_weight="1"
+            android:layout_marginStart="8dp"
             android:background="@drawable/button_background"
             android:padding="12dp"
             android:text="Remove Barber"
             android:textColor="@android:color/white"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_plus"
+            app:iconTint="@android:color/white"
+            app:cornerRadius="16dp"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
