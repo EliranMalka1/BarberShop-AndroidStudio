@@ -58,7 +58,7 @@ public class User {
 
     // Getter and setter for fullName
     public String getFullName() {
-        return fullName;
+        return this.fullName;
     }
     public void setFullName(String fullName) {
         this.fullName = fullName;

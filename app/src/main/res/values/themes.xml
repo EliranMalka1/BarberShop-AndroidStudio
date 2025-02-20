@@ -6,4 +6,12 @@
     </style>
 
     <style name="Theme.Navigtion_app" parent="Base.Theme.Navigtion_app" />
+    <style name="cornerImage">
+        <item name="cornerSize">10dp</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+    <style name="fullCornerImage">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
 </resources>

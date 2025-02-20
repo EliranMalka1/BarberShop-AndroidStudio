@@ -47,7 +47,6 @@
                         android:textColor="@android:color/black"
                         android:textSize="18sp"
                         android:textStyle="bold" />
-
                     <TextView
                         android:id="@+id/subtitle"
                         android:layout_width="wrap_content"
@@ -100,35 +99,21 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="279dp"
+            android:orientation="horizontal"
+            android:padding="15dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1">
+                android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="קיים תור עתידי לתאריך :"
-                    android:textSize="25dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent" />
-
-                <TextView
-                    android:id="@+id/textView5"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="18/02/2025 בשעה 18:30"
-                    android:textColor="@color/red"
-                    android:textSize="20dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textView4" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:layout_editor_absoluteX="381dp" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
@@ -136,13 +121,89 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:padding="15dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
+            <!-- כרטיס התור -->
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="6dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- פרטי הלקוח -->
+                        <TextView
+                            android:id="@+id/tvCustomerName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="8dp"
+                            android:text="שם הלקוח: ישראל ישראלי"
+                            android:textColor="@android:color/black"
+                            android:textSize="18sp" />
+
+                        <!-- תאריך התור -->
+                        <TextView
+                            android:id="@+id/tvAppointmentDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            android:text="תאריך התור: 20/02/2025"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <!-- שעה -->
+                        <TextView
+                            android:id="@+id/tvAppointmentTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="12dp"
+                            android:text="שעה: 14:00"
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
+
+                        <!-- כפתורים -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <Button
+                                android:id="@+id/btnCancelAppointment"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:backgroundTint="@android:color/holo_red_light"
+                                android:text="ביטול תור" />
+
+                            <Button
+                                android:id="@+id/btnDelayAppointment"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="@android:color/holo_orange_light"
+                                android:text="הודעה על עיכוב" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </LinearLayout>
 
     </LinearLayout>

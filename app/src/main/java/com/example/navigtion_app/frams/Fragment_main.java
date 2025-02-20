@@ -12,23 +12,34 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.navigtion_app.Adapters.ButtonAdapter;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.models.ButtonItem;
+import com.example.navigtion_app.models.User;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.widget.Toast;
-
 
 public class Fragment_main extends Fragment {
 
     private RecyclerView recyclerView;
     private ButtonAdapter buttonAdapter;
     private List<ButtonItem> buttonList;
+    private TextView userNameTextView;
+    private DatabaseReference userDatabaseRef;
+
+    private FirebaseAuth auth;
 
     public Fragment_main() {
         // Required empty public constructor
@@ -43,56 +54,69 @@ public class Fragment_main extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // קישור ל-RecyclerView מה-XML
+        // Initialize Firebase Auth and Database
+        auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        userNameTextView = view.findViewById(R.id.user_name);
+
+        if (currentUser != null) {
+            userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+            loadUserData(view);
+        }
+
+        // Set up RecyclerView
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        // יצירת רשימת הכפתורים
-        buttonList = new ArrayList<>();
-        buttonList.add(new ButtonItem("New Haircut", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), R.id.action_fragment_main_to_gender));
-        buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_fragment_profile));
-        buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), R.id.action_fragment_main_to_fragment_profile));
-        buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), R.id.action_fragment_main_to_fragment_profile));
-
-// יצירת מתאם ושיוכו ל-RecyclerView
-        buttonAdapter = new ButtonAdapter(requireActivity(), buttonList);
-        recyclerView.setAdapter(buttonAdapter);
-
-
-
         ImageView logOut = view.findViewById(R.id.logOut);
-        logOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                logOut.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        new AlertDialog.Builder(getContext())
-                                .setTitle("Logout")
-                                .setMessage("Are you sure you want to log out?")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
+        logOut.setOnClickListener(v -> new AlertDialog.Builder(getContext())
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    auth.signOut();
+                    Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_intro);
+                    Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("No", null)
+                .show());
 
-                                        Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_intro);
-                                        Toast.makeText(getContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
-                                    }
-                                })
-                                .setNegativeButton("No", null)
-                                .show();
+        ImageView updateInfo = view.findViewById(R.id.UpdateInfo);
+        updateInfo.setOnClickListener(v -> Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_profile));
+    }
+
+    private void loadUserData(View view) {
+        userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    User user = snapshot.getValue(User.class);
+                    if (user != null) {
+                        userNameTextView.setText(String.format("Hello %s", user.getFullName()));
+                        populateButtons(user.getType(), view);
                     }
-                });
-
+                }
             }
-        });
 
-        ImageView updateInfo =view.findViewById(R.id.UpdateInfo);
-        updateInfo.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_profile);
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load user data.", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private void populateButtons(String userType, View view) {
+        buttonList = new ArrayList<>();
+        if ("client".equals(userType)) {
+            buttonList.add(new ButtonItem("New Haircut", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), R.id.action_fragment_main_to_gender));
+            buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_fragment_profile));
+            buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), R.id.action_fragment_main_to_fragment_profile));
+            buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), R.id.action_fragment_main_to_fragment_profile));
+        } else {
+            buttonList.add(new ButtonItem("View Schedule", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), R.id.action_fragment_main_to_gender));
+        }
+
+        buttonAdapter = new ButtonAdapter(requireActivity(), buttonList);
+        recyclerView.setAdapter(buttonAdapter);
+    }
 }
