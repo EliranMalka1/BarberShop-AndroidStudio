@@ -91,6 +91,19 @@ public class managerPage extends Fragment {
 
             }
         });
+
+
+
+        ImageView updateInfo =view.findViewById(R.id.profile_image);
+        updateInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(R.id.action_managerPage_to_fragment_profile);
+            }
+        });
+
+
+
         // Inflate the layout for this fragment
         return view;
     }

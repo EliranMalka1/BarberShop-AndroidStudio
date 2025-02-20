@@ -29,7 +29,7 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.fullName = fullName;
-        this.type = "barber";
+        this.type = type;
     }
 
     // Getter and setter for id

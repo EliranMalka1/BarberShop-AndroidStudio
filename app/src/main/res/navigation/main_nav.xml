@@ -78,6 +78,9 @@
         <action
             android:id="@+id/action_fragment_profile_to_fragment_login"
             app:destination="@id/fragment_login" />
+        <action
+            android:id="@+id/action_fragment_profile_to_managerPage"
+            app:destination="@id/managerPage" />
     </fragment>
     <fragment
         android:id="@+id/managerPage"
