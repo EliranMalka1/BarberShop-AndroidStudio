@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- צבע הכפתור בעת לחיצה -->
+    <!-- צבע בעת לחיצה -->
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="#3366FF"/> <!-- כחול כהה -->
+            <solid android:color="#3366FF"/>
             <corners android:radius="16dp"/>
         </shape>
     </item>
 
-    <!-- צבע הכפתור במצב רגיל -->
+    <!-- צבע רגיל -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#1E50FF"/> <!-- כחול רגיל -->
+            <solid android:color="#1E50FF"/>
             <corners android:radius="16dp"/>
         </shape>
     </item>
