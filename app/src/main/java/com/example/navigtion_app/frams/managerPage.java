@@ -94,7 +94,7 @@ public class managerPage extends Fragment {
 
 
 
-        ImageView updateInfo =view.findViewById(R.id.profile_image);
+        ImageView updateInfo =view.findViewById(R.id.UpdateInfo);
         updateInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
