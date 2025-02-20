@@ -8,8 +8,11 @@ public class User {
     private String phone;
     private String fullName;
 
+    private String type;
+
     // Default constructor required for Firebase deserialization
     public User() {
+
     }
 
     public User(String email, String phone, String fullName) {
@@ -18,6 +21,16 @@ public class User {
         this.email = email;
         this.phone = phone;
         this.fullName = fullName;
+        this.type = "client";
+    }
+
+    public User(String email,String phone, String fullName,String type)
+    {
+        this.id = UUID.randomUUID().toString();
+        this.email = email;
+        this.phone = phone;
+        this.fullName = fullName;
+        this.type = "barber";
     }
 
     // Getter and setter for id
