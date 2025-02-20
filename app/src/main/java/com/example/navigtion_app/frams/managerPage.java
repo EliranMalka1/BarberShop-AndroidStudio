@@ -112,6 +112,14 @@ public class managerPage extends Fragment {
             }
         });
 
+        CardView removeB = view.findViewById(R.id.remove_barber_button);
+        removeB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(R.id.action_managerPage_to_fragment_barger_list);
+            }
+        });
+
 
         // Inflate the layout for this fragment
         return view;
