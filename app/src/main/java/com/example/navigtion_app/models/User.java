@@ -12,7 +12,7 @@ public class User {
 
     // Default constructor required for Firebase deserialization
     public User() {
-
+        this.type = "client";
     }
 
     public User(String email, String phone, String fullName) {
