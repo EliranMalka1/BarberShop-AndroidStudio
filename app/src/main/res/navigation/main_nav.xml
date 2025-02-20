@@ -66,7 +66,11 @@
         android:id="@+id/new_apointment"
         android:name="com.example.navigtion_app.frams.new_apointment"
         android:label="fragment_new_apointment"
-        tools:layout="@layout/fragment_new_apointment" />
+        tools:layout="@layout/fragment_new_apointment" >
+        <action
+            android:id="@+id/action_new_apointment_to_gender"
+            app:destination="@id/gender" />
+    </fragment>
     <fragment
         android:id="@+id/fragment_profile"
         android:name="com.example.navigtion_app.frams.Fragment_profile"
@@ -96,9 +100,17 @@
         <action
             android:id="@+id/action_managerPage_to_fragment_reg_barber"
             app:destination="@id/fragment_reg_barber" />
+        <action
+            android:id="@+id/action_managerPage_to_fragment_barger_list"
+            app:destination="@id/fragment_barger_list" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg_barber"
         android:name="com.example.navigtion_app.frams.Fragment_reg_barber"
         android:label="Fragment_reg_barber" />
+    <fragment
+        android:id="@+id/fragment_barger_list"
+        android:name="com.example.navigtion_app.frams.Fragment_barger_list"
+        android:label="fragment_barger_list"
+        tools:layout="@layout/fragment_barger_list" />
 </navigation>
