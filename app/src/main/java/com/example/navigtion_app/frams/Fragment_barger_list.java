@@ -1,66 +1,84 @@
+
 package com.example.navigtion_app.frams;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.navigtion_app.Adapters.UserAdapter;
 import com.example.navigtion_app.R;
+import com.example.navigtion_app.models.User;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link Fragment_barger_list#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
 public class Fragment_barger_list extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private RecyclerView recyclerView;
+    private UserAdapter userAdapter;
+    private List<User> userList;
+    private DatabaseReference usersRef;
 
     public Fragment_barger_list() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment Fragment_barger_list.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Fragment_barger_list newInstance(String param1, String param2) {
-        Fragment_barger_list fragment = new Fragment_barger_list();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_barger_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_barger_list, container, false);
+        recyclerView = view.findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        userList = new ArrayList<>();
+        userAdapter = new UserAdapter(userList, this::deleteUser);
+        recyclerView.setAdapter(userAdapter);
+
+        usersRef = FirebaseDatabase.getInstance().getReference("Users");
+
+        loadUsers();
+
+        return view;
+    }
+
+    private void loadUsers() {
+        usersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                userList.clear();
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    User user = userSnapshot.getValue(User.class);
+                    if (user != null && !user.getType().equalsIgnoreCase("Manager") && !user.getType().equalsIgnoreCase("client")) {
+                        userList.add(user);
+                    }
+                }
+                userAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load users", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void deleteUser(User user) {
+        usersRef.child(user.getId()).removeValue().addOnSuccessListener(aVoid -> {
+            Toast.makeText(getContext(), "User deleted", Toast.LENGTH_SHORT).show();
+            userList.remove(user);
+            userAdapter.notifyDataSetChanged();
+        }).addOnFailureListener(e ->
+                Toast.makeText(getContext(), "Failed to delete user", Toast.LENGTH_SHORT).show());
     }
 }
