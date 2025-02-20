@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
@@ -11,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.navigtion_app.R;
@@ -102,6 +104,13 @@ public class managerPage extends Fragment {
             }
         });
 
+        CardView addB = view.findViewById(R.id.add_barber_button);
+        addB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(view).navigate(R.id.action_managerPage_to_fragment_reg_barber);
+            }
+        });
 
 
         // Inflate the layout for this fragment
