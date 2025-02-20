@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            AddData(email, phone, fullName);
+                            AddData(email, phone, fullName,"client");
                             Toast.makeText(MainActivity.this, "Register successful.", Toast.LENGTH_SHORT).show();
                             if (callback != null) {
                                 callback.onRegisterResult(true, "Success");
@@ -129,17 +129,66 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void AddData(String email, String phone, String fullName) {
+    public void AddData(String email, String phone, String fullName,String type) {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         FirebaseAuth auth = FirebaseAuth.getInstance();
         String uid = auth.getCurrentUser().getUid();
 
         // Optionally, update your User object with the uid:
-        User user = new User(email, phone, fullName);
+        User user = new User(email, phone, fullName,type);
         user.setId(uid);
 
         DatabaseReference myRef = database.getReference("users").child(uid);
         myRef.setValue(user);
+    }
+
+    public void registerB(final RegisterCallback callback) {
+        String email = ((EditText) findViewById(R.id.BarberEmail)).getText().toString().trim();
+        String password = "123456";
+        String phone = ((EditText) findViewById(R.id.BarberPhone)).getText().toString().trim();
+        String fullName = ((EditText) findViewById(R.id.BarberName)).getText().toString().trim(); // New Full Name field
+        String type=((android.widget.Button)findViewById(R.id.hairTypeButton)).getText().toString();
+
+        if (email.isEmpty() || phone.isEmpty()|| fullName.isEmpty()||type.isEmpty()) {
+            Toast.makeText(MainActivity.this, "Please fill all the fields", Toast.LENGTH_SHORT).show();
+            if (callback != null) {
+                callback.onRegisterResult(false, "All fields are required.");
+            }
+            return;
+        }
+
+
+        mAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            AddData(email, phone, fullName,type);
+                            Toast.makeText(MainActivity.this, "Register successful.", Toast.LENGTH_SHORT).show();
+                            if (callback != null) {
+                                callback.onRegisterResult(true, "Success");
+                            }
+                        } else {
+                            String errorMessage;
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthWeakPasswordException e) {
+                                errorMessage = "Password is too weak.";
+                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                errorMessage = "Invalid email format.";
+                            } catch (FirebaseAuthUserCollisionException e) {
+                                errorMessage = "Email already exists.";
+                            } catch (Exception e) {
+                                errorMessage = "Registration failed. Try again.";
+                            }
+
+                            Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                            if (callback != null) {
+                                callback.onRegisterResult(false, errorMessage);
+                            }
+                        }
+                    }
+                });
     }
 
 

@@ -30,9 +30,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class Fragment_profile extends Fragment {
 
     private EditText fullNameEditText, emailEditText, phoneEditText, passwordEditText;
@@ -48,7 +45,7 @@ public class Fragment_profile extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        fullNameEditText = view.findViewById(R.id.fullName);
+        fullNameEditText = view.findViewById(R.id.BarberName);
         emailEditText = view.findViewById(R.id.Email);
         phoneEditText = view.findViewById(R.id.phone);
         passwordEditText = view.findViewById(R.id.password);

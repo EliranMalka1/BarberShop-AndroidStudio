@@ -107,7 +107,11 @@
     <fragment
         android:id="@+id/fragment_reg_barber"
         android:name="com.example.navigtion_app.frams.Fragment_reg_barber"
-        android:label="Fragment_reg_barber" />
+        android:label="Fragment_reg_barber" >
+        <action
+            android:id="@+id/action_fragment_reg_barber_to_managerPage"
+            app:destination="@id/managerPage" />
+    </fragment>
     <fragment
         android:id="@+id/fragment_barger_list"
         android:name="com.example.navigtion_app.frams.Fragment_barger_list"

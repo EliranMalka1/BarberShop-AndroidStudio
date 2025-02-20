@@ -1,13 +1,11 @@
 package com.example.navigtion_app.frams;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +16,7 @@ import android.widget.Toast;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.activity.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class Fragment_reg_barber extends Fragment {
 
@@ -33,9 +32,9 @@ public class Fragment_reg_barber extends Fragment {
 
         // איתור רכיבים מה-XML
         Button register = view.findViewById(R.id.register);
-        EditText fullName = view.findViewById(R.id.fullName);
-        EditText email = view.findViewById(R.id.Email);
-        EditText phone = view.findViewById(R.id.phone);
+        EditText fullName = view.findViewById(R.id.BarberName);
+        EditText email = view.findViewById(R.id.BarberEmail);
+        EditText phone = view.findViewById(R.id.BarberPhone);
         hairTypeButton = view.findViewById(R.id.hairTypeButton); // כפתור בחירת סוג השיער
 
         mAuth = FirebaseAuth.getInstance();
@@ -43,27 +42,31 @@ public class Fragment_reg_barber extends Fragment {
         // מאזין ללחיצה על כפתור בחירת סוג השיער
         hairTypeButton.setOnClickListener(v -> showPopupMenu(v));
 
-        // מאזין ללחיצה על כפתור ההרשמה
         register.setOnClickListener(v -> {
-            String name = fullName.getText().toString().trim();
-            String emailText = email.getText().toString().trim();
-            String phoneText = phone.getText().toString().trim();
-
-            if (name.isEmpty() || emailText.isEmpty() || phoneText.isEmpty() || selectedHairType.isEmpty()) {
-                Toast.makeText(getContext(), "Please fill in all fields, including hair type.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            MainActivity mainActivity = (MainActivity) getActivity();
-            if (mainActivity != null) {
-                mainActivity.register((isSuccess, message) -> {
-                    if (isSuccess) {
-                        Toast.makeText(getContext(), "Registration successful!", Toast.LENGTH_LONG).show();
-                        Navigation.findNavController(view).navigate(R.id.action_fragment_reg_to_fragment_login);
-                    } else {
-                        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-                    }
-                });
+            String hairType=hairTypeButton.getText().toString();
+            if(hairType.equals("Select Hair Type")) Toast.makeText(getContext(), "Please fill in all fields, including hair type.", Toast.LENGTH_LONG).show();
+            else {
+                MainActivity mainActivity = (MainActivity) getActivity();
+                if (mainActivity != null) {
+                    mainActivity.registerB((isSuccess, message) -> {
+                        if (isSuccess) {
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                user.sendEmailVerification().addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(getContext(), "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show();
+                                        mAuth.signOut(); // מנתק את המשתמש עד שיאמת את המייל
+                                        Navigation.findNavController(view).navigate(R.id.action_fragment_reg_barber_to_managerPage);
+                                    } else {
+                                        Toast.makeText(getContext(), "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        } else {
+                            Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
             }
         });
 
@@ -94,4 +97,6 @@ public class Fragment_reg_barber extends Fragment {
 
         popup.show();
     }
+
+
 }
