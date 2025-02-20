@@ -93,5 +93,12 @@
         <action
             android:id="@+id/action_managerPage_to_fragment_profile"
             app:destination="@id/fragment_profile" />
+        <action
+            android:id="@+id/action_managerPage_to_fragment_reg_barber"
+            app:destination="@id/fragment_reg_barber" />
     </fragment>
+    <fragment
+        android:id="@+id/fragment_reg_barber"
+        android:name="com.example.navigtion_app.frams.Fragment_reg_barber"
+        android:label="Fragment_reg_barber" />
 </navigation>
