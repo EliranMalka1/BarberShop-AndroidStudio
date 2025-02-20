@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -42,7 +44,7 @@ public class Fragment_barger_list extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         userList = new ArrayList<>();
-        userAdapter = new UserAdapter(userList, this::deleteUser);
+        userAdapter = new UserAdapter(userList, this::confirmDeleteUser);
         recyclerView.setAdapter(userAdapter);
 
         usersRef = FirebaseDatabase.getInstance().getReference("users");
@@ -92,6 +94,17 @@ public class Fragment_barger_list extends Fragment {
         });
     }
 
+    // פונקציה שתציג התראה לפני מחיקת המשתמש
+    private void confirmDeleteUser(User user) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Confirm Deletion")
+                .setMessage("Are you sure you want to delete " + user.getFullName() + "? This action cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> deleteUser(user)) // אם המשתמש מאשר, מבצעים מחיקה
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()) // אם המשתמש מבטל, סוגרים את הדיאלוג
+                .show();
+    }
+
+    // פונקציה שמבצעת מחיקה בפועל
     private void deleteUser(User user) {
         usersRef.child(user.getId()).removeValue().addOnSuccessListener(aVoid -> {
             Toast.makeText(getContext(), "User deleted", Toast.LENGTH_SHORT).show();
