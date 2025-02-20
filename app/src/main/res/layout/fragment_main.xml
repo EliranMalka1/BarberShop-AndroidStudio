@@ -50,7 +50,7 @@
                     android:textSize="20dp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView3"
+                    app:layout_constraintEnd_toStartOf="@+id/logOut"
                     app:layout_constraintStart_toEndOf="@+id/UpdateInfo"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="0.428" />
@@ -63,7 +63,7 @@
                     android:text="איך אפשר לעזור לך היום ?"
                     android:textSize="15dp"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imageView3"
+                    app:layout_constraintEnd_toStartOf="@+id/logOut"
                     app:layout_constraintStart_toEndOf="@+id/UpdateInfo"
                     app:layout_constraintTop_toBottomOf="@+id/textView" />
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -103,6 +103,7 @@
                     android:layout_weight="1"
                     android:text="קיים תור עתידי לתאריך :"
                     android:textSize="25dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent" />
 
