@@ -191,5 +191,25 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    public void AddAppointmentWithAutoID(String clientId, String barberId, String date, String time) {
+        DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
+
+        String appointmentId = appointmentsRef.push().getKey();  // Generate unique ID
+
+        if (appointmentId != null) {
+            Appointment appointment = new Appointment(appointmentId, clientId, barberId, date, time);
+            appointmentsRef.child(appointmentId).setValue(appointment)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(MainActivity.this, "Appointment created successfully!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MainActivity.this, "Failed to create appointment. Try again.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            Toast.makeText(MainActivity.this, "Failed to generate appointment ID.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 }

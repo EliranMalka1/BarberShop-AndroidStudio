@@ -17,7 +17,6 @@ public class Appointment {
         this.time = time;
     }
 
-    // גטרים וסטרים
     public String getAppointmentId() { return appointmentId; }
     public void setAppointmentId(String appointmentId) { this.appointmentId = appointmentId; }
 

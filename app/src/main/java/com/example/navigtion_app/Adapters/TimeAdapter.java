@@ -1,23 +1,28 @@
 package com.example.navigtion_app.Adapters;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.navigtion_app.R;
-
 import java.util.List;
 
 public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder> {
 
     private List<String> timeList;
+    private int selectedPosition = RecyclerView.NO_POSITION;
+    private OnTimeClickListener onTimeClickListener;
 
-    public TimeAdapter(List<String> timeList) {
+    public interface OnTimeClickListener {
+        void onTimeSelected(String time);
+    }
+
+    public TimeAdapter(List<String> timeList, OnTimeClickListener listener) {
         this.timeList = timeList;
+        this.onTimeClickListener = listener;
     }
 
     @NonNull
@@ -31,6 +36,25 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
     public void onBindViewHolder(@NonNull TimeViewHolder holder, int position) {
         String time = timeList.get(position);
         holder.tvTime.setText(time);
+
+        // Highlight selected item
+        if (selectedPosition == position) {
+            holder.tvTime.setBackgroundColor(Color.parseColor("#FF4081")); // Pink when selected
+            holder.tvTime.setTextColor(Color.WHITE);
+        } else {
+            holder.tvTime.setBackgroundColor(Color.TRANSPARENT);
+            holder.tvTime.setTextColor(Color.BLACK);
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            int previousPosition = selectedPosition;
+            selectedPosition = holder.getAdapterPosition();
+            notifyItemChanged(previousPosition);
+            notifyItemChanged(selectedPosition);
+            if (onTimeClickListener != null) {
+                onTimeClickListener.onTimeSelected(time);
+            }
+        });
     }
 
     @Override
