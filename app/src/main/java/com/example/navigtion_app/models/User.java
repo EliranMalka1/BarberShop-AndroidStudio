@@ -12,7 +12,6 @@ public class User {
 
     // Default constructor required for Firebase deserialization
     public User() {
-        this.type = "client";
     }
 
     public User(String email, String phone, String fullName) {
@@ -63,5 +62,13 @@ public class User {
     }
     public void setFullName(String fullName) {
         this.fullName = fullName;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
