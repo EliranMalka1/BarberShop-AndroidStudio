@@ -16,12 +16,12 @@
         android:id="@+id/textView3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:gravity="center"
-        android:text="Barber_Register"
-        android:textStyle="bold"
-        android:textSize="30sp"
+        android:text="Barber Register"
         android:textColor="@color/primary_blue"
-        android:layout_marginBottom="12dp"/>
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <!-- תת-כותרת -->
     <TextView

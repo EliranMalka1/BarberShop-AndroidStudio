@@ -1,7 +1,7 @@
-
 package com.example.navigtion_app.frams;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.navigtion_app.Adapters.UserAdapter;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.models.User;
@@ -25,7 +26,6 @@ import java.util.List;
 
 public class Fragment_barger_list extends Fragment {
 
-    private RecyclerView recyclerView;
     private UserAdapter userAdapter;
     private List<User> userList;
     private DatabaseReference usersRef;
@@ -38,16 +38,16 @@ public class Fragment_barger_list extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_barger_list, container, false);
-        recyclerView = view.findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         userList = new ArrayList<>();
         userAdapter = new UserAdapter(userList, this::deleteUser);
         recyclerView.setAdapter(userAdapter);
 
-        usersRef = FirebaseDatabase.getInstance().getReference("Users");
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        loadUsers();
+        loadUsers(); // קריאה לפונקציה שמביאה את המשתמשים
 
         return view;
     }
@@ -57,17 +57,36 @@ public class Fragment_barger_list extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 userList.clear();
+                Log.d("FirebaseData", "DataSnapshot received: " + snapshot.getChildrenCount() + " users found");
+
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    User user = userSnapshot.getValue(User.class);
-                    if (user != null && !user.getType().equalsIgnoreCase("Manager") && !user.getType().equalsIgnoreCase("client")) {
-                        userList.add(user);
+                    // קבלת הנתונים מתוך ה-UID של המשתמש
+                    if (userSnapshot.exists()) {
+                        User user = userSnapshot.getValue(User.class);
+
+                        if (user != null) {
+                            // שמירת ה-UID של המשתמש (כי זה לא קיים במפורש במסד הנתונים)
+                            user.setId(userSnapshot.getKey());
+
+                            Log.d("FirebaseData", "User Loaded: " + user.getFullName() + " - Type: " + user.getType());
+
+                            // הוספת המשתמש רק אם הוא לא "Manager" או "Client"
+                            if (!user.getType().equalsIgnoreCase("Manager") && !user.getType().equalsIgnoreCase("Client")) {
+                                userList.add(user);
+                            }
+                        } else {
+                            Log.e("FirebaseData", "User snapshot is null!");
+                        }
                     }
                 }
+
+                Log.d("FirebaseData", "Total Users added to list: " + userList.size());
                 userAdapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("FirebaseData", "Database error: " + error.getMessage());
                 Toast.makeText(getContext(), "Failed to load users", Toast.LENGTH_SHORT).show();
             }
         });
