@@ -4,41 +4,82 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp"
-    android:layout_margin="5dp"
-    android:background="@android:color/white"
-    android:elevation="4dp">
+    android:padding="12dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/card_background"
+    android:elevation="6dp">
 
+    <!-- שם הספר -->
     <TextView
         android:id="@+id/tvName"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Name"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:text="Full Name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:paddingBottom="4dp"/>
 
+    <!-- אימייל -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Email:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/darker_gray"/>
     <TextView
         android:id="@+id/tvEmail"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email"/>
+        android:text="email@example.com"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="8dp"/>
 
+    <!-- טלפון -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Phone:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/darker_gray"/>
     <TextView
         android:id="@+id/tvPhone"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Phone"/>
+        android:text="+972-50-000-0000"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="8dp"/>
 
+    <!-- סוג תספורת -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hair Type:"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/darker_gray"/>
     <TextView
         android:id="@+id/tvType"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Type"/>
+        android:text="Short Hair"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:paddingBottom="12dp"/>
 
+    <!-- כפתור מחיקה מעוצב -->
     <Button
         android:id="@+id/btnDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
         android:text="Delete"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="@drawable/btn_delete_background"
         android:layout_marginTop="8dp"/>
 </LinearLayout>
