@@ -139,6 +139,14 @@
                             android:text="Hour: "
                             android:textColor="@android:color/black"
                             android:textSize="16sp"/>
+
+                        <TextView
+                            android:id="@+id/tvOtherUserName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="With: "
+                            android:textColor="@android:color/black"
+                            android:textSize="16sp" />
                     </LinearLayout>
 
                     <!-- פרטי היוזר השני -->
@@ -148,14 +156,6 @@
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:paddingStart="8dp">
-
-                        <TextView
-                            android:id="@+id/tvOtherUserName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="With: "
-                            android:textColor="@android:color/black"
-                            android:textSize="16sp"/>
 
                         <TextView
                             android:id="@+id/tvOtherUserPhone"
