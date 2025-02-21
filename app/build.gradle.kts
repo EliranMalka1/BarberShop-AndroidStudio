@@ -7,6 +7,20 @@ android {
     namespace = "com.example.navigtion_app"
     compileSdk = 34
 
+    packagingOptions {
+        resources {
+            excludes += "META-INF/DEPENDENCIES"
+            excludes += "META-INF/LICENSE"
+            excludes += "META-INF/LICENSE.txt"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/NOTICE"
+            excludes += "META-INF/NOTICE.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "META-INF/ASL2.0"
+            excludes += "META-INF/INDEX.LIST"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.navigtion_app"
         minSdk = 24
@@ -33,17 +47,26 @@ android {
 }
 
 dependencies {
-    implementation("com.github.bumptech.glide:glide:4.15.1")
     implementation(libs.firebase.auth)
     implementation(libs.firebase.database)
-    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+
+    // Glide - ניהול תמונות
+    implementation("com.github.bumptech.glide:glide:4.15.1")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.1")
+
+    // Retrofit - תקשורת עם API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    // Google Auth (גרסה יציבה יותר)
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.22.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

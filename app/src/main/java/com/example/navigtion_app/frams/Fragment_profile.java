@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 
 import com.example.navigtion_app.R;
-import com.example.navigtion_app.UpdateCallback;
+import com.example.navigtion_app.intarfaces.UpdateCallback;
 import com.example.navigtion_app.models.User;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
