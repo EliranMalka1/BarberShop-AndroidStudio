@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.navigtion_app.Adapters.UserAdapter;
 import com.example.navigtion_app.R;
+import com.example.navigtion_app.models.Appointment;
 import com.example.navigtion_app.models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,6 +31,7 @@ public class Fragment_barger_list extends Fragment {
     private UserAdapter userAdapter;
     private List<User> userList;
     private DatabaseReference usersRef;
+    private DatabaseReference appointmentsRef;
 
     public Fragment_barger_list() {
         // Required empty public constructor
@@ -48,6 +49,7 @@ public class Fragment_barger_list extends Fragment {
         recyclerView.setAdapter(userAdapter);
 
         usersRef = FirebaseDatabase.getInstance().getReference("users");
+        appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
 
         loadUsers(); // קריאה לפונקציה שמביאה את המשתמשים
 
@@ -62,17 +64,13 @@ public class Fragment_barger_list extends Fragment {
                 Log.d("FirebaseData", "DataSnapshot received: " + snapshot.getChildrenCount() + " users found");
 
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    // קבלת הנתונים מתוך ה-UID של המשתמש
                     if (userSnapshot.exists()) {
                         User user = userSnapshot.getValue(User.class);
-
                         if (user != null) {
-                            // שמירת ה-UID של המשתמש (כי זה לא קיים במפורש במסד הנתונים)
-                            user.setId(userSnapshot.getKey());
+                            user.setId(userSnapshot.getKey()); // שמירת ה-UID של המשתמש
 
                             Log.d("FirebaseData", "User Loaded: " + user.getFullName() + " - Type: " + user.getType());
 
-                            // הוספת המשתמש רק אם הוא לא "Manager" או "Client"
                             if (!user.getType().equalsIgnoreCase("Manager") && !user.getType().equalsIgnoreCase("Client")) {
                                 userList.add(user);
                             }
@@ -94,20 +92,48 @@ public class Fragment_barger_list extends Fragment {
         });
     }
 
-    // פונקציה שתציג התראה לפני מחיקת המשתמש
+    // הצגת התראה לפני מחיקת המשתמש
     private void confirmDeleteUser(User user) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Confirm Deletion")
                 .setMessage("Are you sure you want to delete " + user.getFullName() + "? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> deleteUser(user)) // אם המשתמש מאשר, מבצעים מחיקה
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss()) // אם המשתמש מבטל, סוגרים את הדיאלוג
+                .setPositiveButton("Delete", (dialog, which) -> deleteUserWithAppointments(user))
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
-    // פונקציה שמבצעת מחיקה בפועל
-    private void deleteUser(User user) {
+    // מחיקת כל הפגישות שקשורות למשתמש ואז מחיקת המשתמש עצמו
+    private void deleteUserWithAppointments(User user) {
+        appointmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
+                    Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
+                    if (appointment == null) continue;
+
+                    // אם ה-ID של המשתמש מופיע כ־barberId או clientId, מוחקים את הפגישה
+                    if (user.getId().equals(appointment.getBarberId()) || user.getId().equals(appointment.getClientId())) {
+                        appointmentSnapshot.getRef().removeValue();
+                        Log.d("FirebaseData", "Deleted appointment: " + appointment.getAppointmentId());
+                    }
+                }
+
+                // לאחר מחיקת הפגישות, מוחקים את המשתמש
+                deleteUserFromDatabase(user);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to delete appointments", Toast.LENGTH_SHORT).show();
+                Log.e("FirebaseData", "Error deleting appointments: " + error.getMessage());
+            }
+        });
+    }
+
+    // מחיקת היוזר מהדאטה בייס
+    private void deleteUserFromDatabase(User user) {
         usersRef.child(user.getId()).removeValue().addOnSuccessListener(aVoid -> {
-            Toast.makeText(getContext(), "User deleted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "User and related appointments deleted", Toast.LENGTH_SHORT).show();
             userList.remove(user);
             userAdapter.notifyDataSetChanged();
         }).addOnFailureListener(e ->
