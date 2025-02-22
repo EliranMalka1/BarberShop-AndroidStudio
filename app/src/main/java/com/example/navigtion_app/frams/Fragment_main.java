@@ -120,11 +120,142 @@ public class Fragment_main extends Fragment {
                     tvAppointmentTime.getText().toString(),userNameTextView.getText().toString());
         });
 
+        Button btnCancelAppointment = view.findViewById(R.id.btnCancelAppointment);
+        btnCancelAppointment.setOnClickListener(v -> {
+            if (tvAppointmentDate.getText().toString().equals("No upcoming appointments")) {
+                Toast.makeText(getContext(), "No appointment to cancel.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // הצגת הודעת אישור למשתמש
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Cancel Appointment")
+                    .setMessage("Are you sure you want to cancel this appointment?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        // המשתמש אישר - שליחת מייל ומחיקת הפגישה
+                        cancelAppointment(tvOtherUserEmail.getText().toString().trim(),tvCustomerName.getText().toString(),tvAppointmentDate.getText().toString(),
+                                tvAppointmentTime.getText().toString(),userNameTextView.getText().toString());
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        });
+
 
 
 
 
     }
+
+    private void cancelAppointment(String customerEmail,String customerName,String appointmentDate,String appointmentTime,String senderName) {
+        // ניקוי הנתונים לפני השימוש
+        customerEmail = tvOtherUserEmail.getText().toString().replace("Email: ", "").trim();
+        customerName = tvCustomerName.getText().toString().replace("With: ","");
+        appointmentDate = tvAppointmentDate.getText().toString().replace("Date: ","");
+        appointmentTime = tvAppointmentTime.getText().toString().replace("Hour: ","");
+        senderName = userNameTextView.getText().toString().replace("Hello ","");
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(customerEmail).matches()) {
+            Toast.makeText(getContext(), "Invalid email format: " + customerEmail, Toast.LENGTH_SHORT).show();
+            Log.e("Email", "❌ Invalid email format: " + customerEmail);
+            return;
+        }
+
+        // ניצור את נושא ותוכן האימייל
+        String subject = "Appointment Cancellation Notice";
+        String body = "Dear " + customerName + ",\n\n"
+                + "I regret to inform you that our appointment on "
+                + appointmentDate + " at " + appointmentTime + " has been canceled.\n\n"
+                + "I apologize for any inconvenience caused.\n\n"
+                + "Best regards,\n"
+                + senderName;
+
+        Log.d("Email", "📧 Sending email to: " + customerEmail.trim());
+        Log.d("Email", "📧 Subject: " + subject);
+        Log.d("Email", "📧 Body: " + body);
+
+        // יצירת JSON עם הנתונים לשליחה
+        Map<String, String> emailRequest = new HashMap<>();
+        emailRequest.put("email", customerEmail);
+        emailRequest.put("subject", subject);
+        emailRequest.put("body", body);
+
+        // שליחת הבקשה ל-Google Apps Script
+        ApiService apiService = new Retrofit.Builder()
+                .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+
+        Call<ResponseBody> call = apiService.sendEmail(emailRequest);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    String responseBody = response.body() != null ? response.body().string() : "No response";
+                    if (response.isSuccessful()) {
+                        Log.d("Email", "✅ Email sent successfully! Server response: " + responseBody);
+                        deleteAppointmentFromDatabase(); // לאחר שליחת האימייל - מחיקת הפגישה מה-Firebase
+                    } else {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Log.e("Email", "❌ Failed to send email. Server response: " + errorBody);
+                    }
+                } catch (IOException e) {
+                    Log.e("Email", "❌ Failed to read response from server", e);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Log.e("Email", "❌ Error sending email: " + t.getMessage());
+            }
+        });
+    }
+
+    private void deleteAppointmentFromDatabase() {
+        DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
+
+        appointmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
+                    Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
+                    if (appointment == null) continue;
+
+                    // בדיקה אם הפגישה הנוכחית תואמת לפגישה שצריך למחוק
+                    if (tvAppointmentDate.getText().toString().contains(appointment.getDate()) &&
+                            tvAppointmentTime.getText().toString().contains(appointment.getTime())) {
+
+                        // מחיקת הפגישה מה-Firebase
+                        appointmentSnapshot.getRef().removeValue()
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("Firebase", "✅ Appointment deleted successfully!");
+                                    Toast.makeText(getContext(), "Appointment canceled.", Toast.LENGTH_SHORT).show();
+
+                                    // קריאה לפונקציה שמאתרת את הפגישה הקרובה הבאה
+                                    FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                                    if (currentUser != null) {
+                                        loadNextAppointmentForUser(currentUser.getUid());
+                                    }
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e("Firebase", "❌ Failed to delete appointment", e);
+                                    Toast.makeText(getContext(), "Failed to cancel appointment.", Toast.LENGTH_SHORT).show();
+                                });
+
+                        break; // יוצאים מהלולאה לאחר שמצאנו ומחקנו את הפגישה
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "❌ Failed to access database: " + error.getMessage());
+            }
+        });
+    }
+
+
 
     private void sendDelayEmail(String customerEmail, String customerName, String appointmentDate, String appointmentTime, String senderName) {
         customerEmail = customerEmail.replace("Email: ", "").trim();
