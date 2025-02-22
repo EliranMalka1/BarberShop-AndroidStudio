@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.navigtion_app.Adapters.PastAppointmentsAdapter;
@@ -34,6 +35,7 @@ import java.util.Locale;
 public class fragment_past_appointments extends Fragment {
 
     private RecyclerView recyclerView;
+    private TextView tvNoPastAppointments;
     private PastAppointmentsAdapter adapter;
     private List<Appointment> pastAppointmentsList;
     private FirebaseAuth auth;
@@ -54,6 +56,8 @@ public class fragment_past_appointments extends Fragment {
 
         recyclerView = view.findViewById(R.id.recyclerViewPastAppointments);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        tvNoPastAppointments = view.findViewById(R.id.tvNoPastAppointments);
 
         auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -83,6 +87,8 @@ public class fragment_past_appointments extends Fragment {
 
                     try {
                         Date appointmentDate = sdf.parse(appointment.getDate() + " " + appointment.getTime());
+
+                        // ✅ רק אם הפגישה מהעבר - נוסיף אותה לרשימה
                         if (appointmentDate != null && appointmentDate.before(new Date())) {
                             pastAppointmentsList.add(appointment);
                         }
@@ -91,9 +97,16 @@ public class fragment_past_appointments extends Fragment {
                     }
                 }
 
-                // עדכון ה-RecyclerView עם הנתונים
-                adapter = new PastAppointmentsAdapter(pastAppointmentsList);
-                recyclerView.setAdapter(adapter);
+                // ✅ בדיקה אם יש פגישות עבר או לא
+                if (pastAppointmentsList.isEmpty()) {
+                    tvNoPastAppointments.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                } else {
+                    tvNoPastAppointments.setVisibility(View.GONE);
+                    recyclerView.setVisibility(View.VISIBLE);
+                    adapter = new PastAppointmentsAdapter(pastAppointmentsList);
+                    recyclerView.setAdapter(adapter);
+                }
             }
 
             @Override

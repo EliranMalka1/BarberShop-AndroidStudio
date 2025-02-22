@@ -1,10 +1,23 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- הודעה אם אין פגישות עבר -->
+    <TextView
+        android:id="@+id/tvNoPastAppointments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No past appointments found."
+        android:textSize="18sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="20dp" />
+
+    <!-- רשימת הפגישות -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPastAppointments"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
 </FrameLayout>
