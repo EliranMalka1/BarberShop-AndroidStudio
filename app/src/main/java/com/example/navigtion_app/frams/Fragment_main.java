@@ -13,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.navigtion_app.Adapters.ButtonAdapter;
 import com.example.navigtion_app.R;
+import com.example.navigtion_app.intarfaces.ApiService;
 import com.example.navigtion_app.models.Appointment;
 import com.example.navigtion_app.models.ButtonItem;
 import com.example.navigtion_app.models.User;
@@ -28,16 +30,27 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import android.app.AlertDialog;
 import android.widget.Toast;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Fragment_main extends Fragment {
 
@@ -96,7 +109,94 @@ public class Fragment_main extends Fragment {
 
         ImageView updateInfo = view.findViewById(R.id.UpdateInfo);
         updateInfo.setOnClickListener(v -> Navigation.findNavController(view).navigate(R.id.action_fragment_main_to_fragment_profile));
+
+        Button btnDelayAppointment = view.findViewById(R.id.btnDelayAppointment);
+        btnDelayAppointment.setOnClickListener(v -> {
+            if (tvAppointmentDate.getText().toString().equals("No upcoming appointments")) {
+                Toast.makeText(getContext(), "No appointment to delay.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            sendDelayEmail(tvOtherUserEmail.getText().toString().trim(),tvCustomerName.getText().toString(),tvAppointmentDate.getText().toString(),
+                    tvAppointmentTime.getText().toString(),userNameTextView.getText().toString());
+        });
+
+
+
+
+
     }
+
+    private void sendDelayEmail(String customerEmail, String customerName, String appointmentDate, String appointmentTime, String senderName) {
+        customerEmail = customerEmail.replace("Email: ", "").trim();
+        customerName=customerName.replace("With: ","");
+        appointmentDate=appointmentDate.replace("Date: ","");
+        appointmentTime=appointmentTime.replace("Hour: ","");
+        senderName=senderName.replace("Hello ","");
+
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(customerEmail).matches()) {
+            Toast.makeText(getContext(), "Invalid email format: " + customerEmail, Toast.LENGTH_SHORT).show();
+            Log.e("Email", "❌ Invalid email format: " + customerEmail);
+            return;
+        }
+
+        String subject = "Slight Delay for Our Meeting";
+        String body = "Dear " + customerName + ",\n\n"
+                + "I wanted to let you know that I will be slightly delayed for our upcoming meeting on "
+                + appointmentDate + " at " + appointmentTime + ".\n\n"
+                + "I will arrive as soon as possible.\n\n"
+                + "Thank you for your patience.\n\n"
+                + "Best regards,\n"
+                + senderName;
+
+        Log.d("Email", "📧 Sending email to: " + customerEmail.trim());
+        Log.d("Email", "📧 Subject: " + subject);
+        Log.d("Email", "📧 Body: " + body);
+
+        // יצירת JSON עם הנתונים לשליחה
+        Map<String, String> emailRequest = new HashMap<>();
+        emailRequest.put("email", customerEmail);
+        emailRequest.put("subject", subject);
+        emailRequest.put("body", body);
+
+        // הדפסת JSON ללוג כדי לוודא שהנתונים נכונים
+        Gson gson = new Gson();
+        String jsonRequest = gson.toJson(emailRequest);
+        Log.d("Email", "📨 JSON Sent to Server: " + jsonRequest);
+
+        // שליחת הבקשה ל-Google Apps Script
+        ApiService apiService = new Retrofit.Builder()
+                .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(ApiService.class);
+
+        Call<ResponseBody> call = apiService.sendEmail(emailRequest);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    String responseBody = response.body() != null ? response.body().string() : "No response";
+                    if (response.isSuccessful()) {
+                        Log.d("Email", "✅ Email sent successfully! Server response: " + responseBody);
+                        Toast.makeText(getContext(), "Email Sent", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                        Log.e("Email", "❌ Failed to send email. Server response: " + errorBody);
+                    }
+                } catch (IOException e) {
+                    Log.e("Email", "❌ Failed to read response from server", e);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                Log.e("Email", "❌ Error sending email: " + t.getMessage());
+            }
+        });
+    }
+
+
 
     private void loadUserData(View view) {
         userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
