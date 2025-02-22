@@ -34,6 +34,9 @@
         <action
             android:id="@+id/action_fragment_main_to_fragment_profile"
             app:destination="@id/fragment_profile" />
+        <action
+            android:id="@+id/action_fragment_main_to_fragment_past_appointments"
+            app:destination="@id/fragment_past_appointments" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
@@ -117,4 +120,8 @@
         android:name="com.example.navigtion_app.frams.Fragment_barger_list"
         android:label="fragment_barger_list"
         tools:layout="@layout/fragment_barger_list" />
+    <fragment
+        android:id="@+id/fragment_past_appointments"
+        android:name="com.example.navigtion_app.frams.fragment_past_appointments"
+        android:label="fragment_past_appointments" />
 </navigation>
