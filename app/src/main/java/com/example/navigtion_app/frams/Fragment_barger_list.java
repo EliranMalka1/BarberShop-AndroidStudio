@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -210,6 +212,7 @@ public class Fragment_barger_list extends Fragment {
 
     private void sendCancellationEmail(String userId, String date, String time) {
         Log.d("Email", "📧 Preparing to send cancellation email to user ID: " + userId);
+
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
 
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -222,45 +225,75 @@ public class Fragment_barger_list extends Fragment {
                         String subject = "Appointment Cancellation Notice";
                         String body = "Dear " + otherUser.getFullName() + ",\n\n"
                                 + "We regret to inform you that your appointment on " + date + " at " + time + " has been canceled.\n\n"
-                                + "Please contact us for rescheduling.\n\nBest regards,\nYour Salon Team";
+                                + "Please contact us for rescheduling.\n\nBest regards,\nYour Salon Team.";
 
                         Log.d("Email", "📧 Sending email to: " + email);
                         Log.d("Email", "📧 Subject: " + subject);
                         Log.d("Email", "📧 Body: " + body);
 
-                        EmailRequest emailRequest = new EmailRequest(email, subject, body, time);
+                        // ✅ יצירת JSON עם השדות הנכונים
+                        Map<String, String> emailRequest = new HashMap<>();
+                        emailRequest.put("email", email);
+                        emailRequest.put("subject", subject);
+                        emailRequest.put("body", body);
+
+                        // ✅ הדפסת JSON כדי לוודא שהנתונים נשלחים נכון
+                        Gson gson = new Gson();
+                        String jsonRequest = gson.toJson(emailRequest);
+                        Log.d("Email", "📨 JSON Sent to Server: " + jsonRequest);
+
+                        // שליחת בקשה ל-Google Apps Script
                         ApiService apiService = new Retrofit.Builder()
                                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build()
                                 .create(ApiService.class);
 
-                        apiService.sendEmail(emailRequest).enqueue(new Callback<Void>() {
+                        Call<ResponseBody> call = apiService.sendEmail(emailRequest);
+
+                        // ✅ Debug: הצגת נתוני השליחה ללוג
+                        Log.d("Email", "📨 Sending request to Google Apps Script:");
+                        Log.d("Email", "➡️ Email: " + email);
+                        Log.d("Email", "➡️ Subject: " + subject);
+                        Log.d("Email", "➡️ Body: " + body);
+
+                        call.enqueue(new Callback<ResponseBody>() {
                             @Override
-                            public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                                if (response.isSuccessful()) {
-                                    Log.d("Email", "✅ Email sent successfully to " + email);
-                                } else {
-                                    Log.e("Email", "❌ Failed to send email. Response: " + response);
+                            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                                try {
+                                    String responseBody = response.body() != null ? response.body().string() : "No response";
+                                    if (response.isSuccessful()) {
+                                        Log.d("Email", "✅ Server Response: " + responseBody);
+                                    } else {
+                                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                                        Log.e("Email", "❌ Failed to send email. Server Response: " + errorBody);
+                                    }
+                                } catch (IOException e) {
+                                    Log.e("Email", "❌ Failed to read response from server", e);
                                 }
                             }
 
                             @Override
-                            public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                                 Log.e("Email", "❌ Error sending email: " + t.getMessage());
                             }
                         });
+                    } else {
+                        Log.e("Email", "❌ User email not found.");
                     }
                 } else {
-                    Log.e("Email", "❌ User not found for email notification.");
+                    Log.e("Email", "❌ User not found in database.");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Email", "❌ Failed to load user data for email notification.");
+                Log.e("Email", "❌ Failed to load user data for email notification: " + error.getMessage());
             }
         });
     }
+
+
+
 
 }

@@ -52,7 +52,7 @@ public class FirebaseAdminHelper {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 // בדיקה אם הקובץ קיים
-                InputStream serviceAccount = context.getAssets().open("app-data-bd40e-95121f882b77.json");
+                InputStream serviceAccount = context.getAssets().open("app-data-bd40e-559adbf7994f.json");
 
                 GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount)
                         .createScoped(Collections.singletonList("https://www.googleapis.com/auth/identitytoolkit")); // ✅ שונה ל-Scope הנכון
