@@ -21,7 +21,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -39,13 +38,11 @@ public class fragment_cancel_remaining_appointments extends Fragment {
 
     private TextView tvTodayDate, tvSelectedTime;
     private Button btnSelectTime, btnConfirmCancellation;
-    private DatabaseReference appointmentsRef;
+    private DatabaseReference appointmentsRef, usersRef;
     private String currentUserId;
     private String selectedTime = null;
 
-    public fragment_cancel_remaining_appointments() {
-        // קונסטרקטור ריק נדרש על ידי Fragment
-    }
+    public fragment_cancel_remaining_appointments() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,15 +60,12 @@ public class fragment_cancel_remaining_appointments extends Fragment {
 
         currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
+        usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        // הצגת תאריך של היום
         String todayDate = new SimpleDateFormat("EEEE dd/MM/yyyy", Locale.getDefault()).format(new Date());
         tvTodayDate.setText("Today's Date: " + todayDate);
 
-        // פתיחת חלון בחירת שעה
         btnSelectTime.setOnClickListener(v -> openTimePicker());
-
-        // לחיצה על כפתור אישור
         btnConfirmCancellation.setOnClickListener(v -> {
             if (selectedTime == null) {
                 Toast.makeText(getContext(), "Please select a valid time", Toast.LENGTH_SHORT).show();
@@ -107,30 +101,19 @@ public class fragment_cancel_remaining_appointments extends Fragment {
         appointmentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                int count = 0;
-
                 for (DataSnapshot appointmentSnapshot : snapshot.getChildren()) {
                     String appointmentDate = appointmentSnapshot.child("date").getValue(String.class);
                     String appointmentTime = appointmentSnapshot.child("time").getValue(String.class);
+                    String clientId = appointmentSnapshot.child("clientId").getValue(String.class);
 
-                    if (appointmentDate != null && appointmentTime != null &&
-                            appointmentDate.equals(date) && appointmentTime.compareTo(time) >= 0) {
+                    if (appointmentDate != null && appointmentTime != null && appointmentDate.equals(date) && appointmentTime.compareTo(time) >= 0) {
                         String appointmentId = appointmentSnapshot.getKey();
-                        String otherUserEmail = appointmentSnapshot.child("email").getValue(String.class);
-
-                        // מחיקת הפגישה
                         appointmentsRef.child(appointmentId).removeValue();
-                        count++;
-
-                        // שליחת מייל ביטול
-                        sendCancellationEmail(otherUserEmail);
+                        Log.d("Appointment", "Deleting appointment at: " + appointmentTime);
+                        if (clientId != null) {
+                            getEmailFromFirebase(clientId);
+                        }
                     }
-                }
-
-                if (count > 0) {
-                    Toast.makeText(getContext(), count + " appointments canceled.", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getContext(), "No appointments found from this time onwards.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -141,15 +124,44 @@ public class fragment_cancel_remaining_appointments extends Fragment {
         });
     }
 
-    private void sendCancellationEmail(String customerEmail) {
-        if (customerEmail == null || customerEmail.isEmpty()) return;
+    private void getEmailFromFirebase(String clientId) {
+        usersRef.child(clientId).child("email").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String customerEmail = snapshot.getValue(String.class);
+                    sendCancellationEmail(customerEmail);
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("EmailAPI", "Failed to retrieve email for clientId: " + clientId);
+            }
+        });
+    }
 
-        String senderName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+    private void sendCancellationEmail(String customerEmail) {
+        if (customerEmail == null || customerEmail.isEmpty()) {
+            Log.e("EmailAPI", "Invalid email address");
+            return;
+        }
+
+        String senderName = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getDisplayName() : "Unknown Sender";
+
+        if (senderName == null || senderName.isEmpty()) {
+            senderName = "Unknown Sender";
+        }
+
         String subject = "Appointment Cancellation Notice";
         String body = "Dear Customer,\n\n"
                 + "I had to leave early today, and unfortunately, I have to cancel our appointment. "
                 + "Please reschedule a new appointment at your convenience.\n\n"
-                + "Thank you,\n" + senderName;
+                + "Thank you,\n"+"Your Barber";
+
+        Log.d("EmailAPI", "Preparing to send email to: " + customerEmail);
+        Log.d("EmailAPI", "Email Subject: " + subject);
+        Log.d("EmailAPI", "Email Body: " + body);
 
         ApiService apiService = new Retrofit.Builder()
                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
@@ -157,10 +169,27 @@ public class fragment_cancel_remaining_appointments extends Fragment {
                 .build()
                 .create(ApiService.class);
 
-        apiService.sendEmail(Map.of("email", customerEmail, "subject", subject, "body", body))
-                .enqueue(new Callback<>() {
-                    @Override public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {}
-                    @Override public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {}
+        Map<String, String> emailData = new HashMap<>();
+        emailData.put("email", customerEmail);
+        emailData.put("subject", subject);
+        emailData.put("body", body);
+
+        apiService.sendEmail(emailData)
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            Log.d("EmailAPI", "Email sent successfully: Response code " + response.code());
+                            Toast.makeText(getContext(), "Email sent successfully sent.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e("EmailAPI", "Email sending failed: Response code " + response.code());
+                        }
+                    }
+                    @Override
+                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                        Log.e("EmailAPI", "API call failed", t);
+                    }
                 });
     }
+
 }

@@ -177,7 +177,7 @@ public class Fragment_barger_list extends Fragment {
                         Log.d("FirebaseAuth", "User deleted successfully from Firebase Authentication");
                         Toast.makeText(getContext(), "User deleted successfully", Toast.LENGTH_SHORT).show();
 
-                        // 🔥 עכשיו מוחקים גם מה-Database
+                        //  עכשיו מוחקים גם מה-Database
                         deleteUserFromDatabase(user);
                     } else {
                         try {
@@ -211,7 +211,7 @@ public class Fragment_barger_list extends Fragment {
     }
 
     private void sendCancellationEmail(String userId, String date, String time) {
-        Log.d("Email", "📧 Preparing to send cancellation email to user ID: " + userId);
+        Log.d("Email", " Preparing to send cancellation email to user ID: " + userId);
 
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
 
@@ -227,20 +227,20 @@ public class Fragment_barger_list extends Fragment {
                                 + "We regret to inform you that your appointment on " + date + " at " + time + " has been canceled.\n\n"
                                 + "Please contact us for rescheduling.\n\nBest regards,\nYour Salon Team.";
 
-                        Log.d("Email", "📧 Sending email to: " + email);
-                        Log.d("Email", "📧 Subject: " + subject);
-                        Log.d("Email", "📧 Body: " + body);
+                        Log.d("Email", "Sending email to: " + email);
+                        Log.d("Email", " Subject: " + subject);
+                        Log.d("Email", " Body: " + body);
 
-                        // ✅ יצירת JSON עם השדות הנכונים
+                        //  יצירת JSON עם השדות הנכונים
                         Map<String, String> emailRequest = new HashMap<>();
                         emailRequest.put("email", email);
                         emailRequest.put("subject", subject);
                         emailRequest.put("body", body);
 
-                        // ✅ הדפסת JSON כדי לוודא שהנתונים נשלחים נכון
+                        //  הדפסת JSON כדי לוודא שהנתונים נשלחים נכון
                         Gson gson = new Gson();
                         String jsonRequest = gson.toJson(emailRequest);
-                        Log.d("Email", "📨 JSON Sent to Server: " + jsonRequest);
+                        Log.d("Email", "JSON Sent to Server: " + jsonRequest);
 
                         // שליחת בקשה ל-Google Apps Script
                         ApiService apiService = new Retrofit.Builder()
@@ -251,11 +251,11 @@ public class Fragment_barger_list extends Fragment {
 
                         Call<ResponseBody> call = apiService.sendEmail(emailRequest);
 
-                        // ✅ Debug: הצגת נתוני השליחה ללוג
-                        Log.d("Email", "📨 Sending request to Google Apps Script:");
-                        Log.d("Email", "➡️ Email: " + email);
-                        Log.d("Email", "➡️ Subject: " + subject);
-                        Log.d("Email", "➡️ Body: " + body);
+                        //  Debug: הצגת נתוני השליחה ללוג
+                        Log.d("Email", " Sending request to Google Apps Script:");
+                        Log.d("Email", "Email: " + email);
+                        Log.d("Email", " Subject: " + subject);
+                        Log.d("Email", "Body: " + body);
 
                         call.enqueue(new Callback<ResponseBody>() {
                             @Override
@@ -263,32 +263,32 @@ public class Fragment_barger_list extends Fragment {
                                 try {
                                     String responseBody = response.body() != null ? response.body().string() : "No response";
                                     if (response.isSuccessful()) {
-                                        Log.d("Email", "✅ Server Response: " + responseBody);
+                                        Log.d("Email", "Server Response: " + responseBody);
                                     } else {
                                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
-                                        Log.e("Email", "❌ Failed to send email. Server Response: " + errorBody);
+                                        Log.e("Email", " Failed to send email. Server Response: " + errorBody);
                                     }
                                 } catch (IOException e) {
-                                    Log.e("Email", "❌ Failed to read response from server", e);
+                                    Log.e("Email", "Failed to read response from server", e);
                                 }
                             }
 
                             @Override
                             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                                Log.e("Email", "❌ Error sending email: " + t.getMessage());
+                                Log.e("Email", " Error sending email: " + t.getMessage());
                             }
                         });
                     } else {
-                        Log.e("Email", "❌ User email not found.");
+                        Log.e("Email", "User email not found.");
                     }
                 } else {
-                    Log.e("Email", "❌ User not found in database.");
+                    Log.e("Email", "User not found in database.");
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Email", "❌ Failed to load user data for email notification: " + error.getMessage());
+                Log.e("Email", "Failed to load user data for email notification: " + error.getMessage());
             }
         });
     }
