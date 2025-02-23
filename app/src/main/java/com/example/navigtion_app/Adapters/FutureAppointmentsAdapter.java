@@ -19,12 +19,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.gson.Gson;
-
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,6 +44,18 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         this.futureAppointments = futureAppointments;
         this.appointmentsRef = appointmentsRef;
         this.context = context;
+
+        // ✅ מיון הפגישות מהקרוב ביותר לרחוק ביותר
+        Collections.sort(this.futureAppointments, (a1, a2) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm", Locale.getDefault());
+                Date date1 = sdf.parse(a1.getDate() + " " + a1.getTime());
+                Date date2 = sdf.parse(a2.getDate() + " " + a2.getTime());
+                return date1.compareTo(date2); // מיון מהקרוב לרחוק
+            } catch (ParseException e) {
+                return 0;
+            }
+        });
     }
 
     @NonNull
@@ -129,7 +144,6 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         }
     }
 
-    // 🔥 שליחת מייל ביטול
     private void sendCancellationEmail(String customerEmail, String customerName, String appointmentDate, String appointmentTime, String senderEmail) {
         customerEmail = customerEmail.replace("Email: ", "").trim();
         customerName = customerName.replace("With: ","");
