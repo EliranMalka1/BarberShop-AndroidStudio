@@ -362,7 +362,7 @@ public class Fragment_main extends Fragment {
         } else {
             buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), R.id.action_fragment_main_to_fragment_past_appointments));
             buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), R.id.action_fragment_main_to_fragment_FutureAppointments));
-
+            buttonList.add(new ButtonItem("Finish Early", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_fragment_cancel_remaining_appointments));
         }
 
         buttonAdapter = new ButtonAdapter(requireActivity(), buttonList);
@@ -385,9 +385,9 @@ public class Fragment_main extends Fragment {
                     Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
                     if (appointment == null) continue;
 
-                    // **בדיקה שהיוזר קשור לפגישה (או כלקוח או כספר)**
+
                     boolean isUserInvolved = userId.equals(appointment.getBarberId()) || userId.equals(appointment.getClientId());
-                    if (!isUserInvolved) continue; // **אם היוזר לא קשור לפגישה - מדלגים עליה**
+                    if (!isUserInvolved) continue;
 
                     Log.d("FirebaseData", "Checking appointment: " + appointment.getDate() + " " + appointment.getTime());
 

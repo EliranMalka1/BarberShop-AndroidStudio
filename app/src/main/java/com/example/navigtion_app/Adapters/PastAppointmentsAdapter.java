@@ -26,7 +26,7 @@ public class PastAppointmentsAdapter extends RecyclerView.Adapter<PastAppointmen
     public PastAppointmentsAdapter(List<Appointment> pastAppointments) {
         this.pastAppointments = pastAppointments;
 
-        // ✅ מיון הפגישות מהקרובה ביותר לרחוקה ביותר
+        //  מיון הפגישות מהקרובה ביותר לרחוקה ביותר
         Collections.sort(this.pastAppointments, (a1, a2) -> {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm", Locale.getDefault());
@@ -52,16 +52,16 @@ public class PastAppointmentsAdapter extends RecyclerView.Adapter<PastAppointmen
         holder.tvDate.setText("Date: " + appointment.getDate());
         holder.tvTime.setText("Time: " + appointment.getTime());
 
-        // 🔥 זיהוי המשתמש המחובר
+        //  זיהוי המשתמש המחובר
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String otherUserId = appointment.getClientId().equals(currentUserId) ? appointment.getBarberId() : appointment.getClientId();
 
-        // 🔥 הצגת טקסט זמני עד שהנתונים נטענים
+        //  הצגת טקסט זמני עד שהנתונים נטענים
         holder.tvWith.setText("With: Loading...");
         holder.tvPhone.setText("Phone: Loading...");
         holder.tvEmail.setText("Email: Loading...");
 
-        // 🔥 טעינת הנתונים של המשתמש השני מ-Firebase
+        //  טעינת הנתונים של המשתמש השני מ-Firebase
         FirebaseDatabase.getInstance().getReference("users").child(otherUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override

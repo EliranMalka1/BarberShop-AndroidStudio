@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_fragment_main_to_fragment_FutureAppointments"
             app:destination="@id/fragment_FutureAppointments" />
+        <action
+            android:id="@+id/action_fragment_main_to_fragment_cancel_remaining_appointments"
+            app:destination="@id/fragment_cancel_remaining_appointments" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
@@ -134,4 +137,8 @@
         android:id="@+id/fragment_FutureAppointments"
         android:name="com.example.navigtion_app.frams.Fragment_FutureAppointments"
         android:label="Fragment_FutureAppointments" />
+    <fragment
+        android:id="@+id/fragment_cancel_remaining_appointments"
+        android:name="com.example.navigtion_app.frams.fragment_cancel_remaining_appointments"
+        android:label="fragment_cancel_remaining_appointments" />
 </navigation>
