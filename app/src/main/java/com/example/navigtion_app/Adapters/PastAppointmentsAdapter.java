@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.navigtion_app.R;
 import com.example.navigtion_app.models.Appointment;
-import com.example.navigtion_app.models.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -36,29 +36,37 @@ public class PastAppointmentsAdapter extends RecyclerView.Adapter<PastAppointmen
         holder.tvDate.setText("Date: " + appointment.getDate());
         holder.tvTime.setText("Time: " + appointment.getTime());
 
-        // זיהוי המשתמש השני בפגישה
-        String otherUserId = appointment.getClientId().equals(appointment.getBarberId()) ? appointment.getClientId() : appointment.getBarberId();
-        holder.tvWith.setText("With: Fetching..."); // נשנה לאחר שנביא נתונים
-        holder.tvPhone.setText("Phone: Fetching...");
-        holder.tvEmail.setText("Email: Fetching...");
+        // 🔥 זיהוי המשתמש המחובר
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String otherUserId = appointment.getClientId().equals(currentUserId) ? appointment.getBarberId() : appointment.getClientId();
 
-        // טעינת מידע נוסף על המשתמש השני מה־Firebase
+        // 🔥 הצגת טקסט זמני עד שהנתונים נטענים
+        holder.tvWith.setText("With: Loading...");
+        holder.tvPhone.setText("Phone: Loading...");
+        holder.tvEmail.setText("Email: Loading...");
+
+        // 🔥 טעינת הנתונים של המשתמש השני מ-Firebase
         FirebaseDatabase.getInstance().getReference("users").child(otherUserId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()) {
-                            User user = snapshot.getValue(User.class);
-                            if (user != null) {
-                                holder.tvWith.setText("With: " + user.getFullName());
-                                holder.tvPhone.setText("Phone: " + user.getPhone());
-                                holder.tvEmail.setText("Email: " + user.getEmail());
-                            }
+                            holder.tvWith.setText("With: " + snapshot.child("fullName").getValue(String.class));
+                            holder.tvPhone.setText("Phone: " + snapshot.child("phone").getValue(String.class));
+                            holder.tvEmail.setText("Email: " + snapshot.child("email").getValue(String.class));
+                        } else {
+                            holder.tvWith.setText("With: Unknown");
+                            holder.tvPhone.setText("Phone: N/A");
+                            holder.tvEmail.setText("Email: N/A");
                         }
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {}
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        holder.tvWith.setText("With: Error");
+                        holder.tvPhone.setText("Phone: Error");
+                        holder.tvEmail.setText("Email: Error");
+                    }
                 });
     }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- הודעה אם אין פגישות עתידיות -->
+    <TextView
+        android:id="@+id/tvNoFutureAppointments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No upcoming appointments found."
+        android:textSize="18sp"
+        android:textColor="@android:color/darker_gray"
+        android:gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="20dp" />
+
+    <!-- רשימת הפגישות העתידיות -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewFutureAppointments"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+</FrameLayout>

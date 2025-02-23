@@ -37,6 +37,9 @@
         <action
             android:id="@+id/action_fragment_main_to_fragment_past_appointments"
             app:destination="@id/fragment_past_appointments" />
+        <action
+            android:id="@+id/action_fragment_main_to_fragment_FutureAppointments"
+            app:destination="@id/fragment_FutureAppointments" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
@@ -124,4 +127,8 @@
         android:id="@+id/fragment_past_appointments"
         android:name="com.example.navigtion_app.frams.fragment_past_appointments"
         android:label="fragment_past_appointments" />
+    <fragment
+        android:id="@+id/fragment_FutureAppointments"
+        android:name="com.example.navigtion_app.frams.Fragment_FutureAppointments"
+        android:label="Fragment_FutureAppointments" />
 </navigation>
