@@ -1,5 +1,6 @@
 package com.example.navigtion_app.Adapters;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ public class BarberAdapter extends RecyclerView.Adapter<BarberAdapter.BarberView
 
     private List<User> barberList;
     private OnBarberClickListener listener;
+    private int selectedPosition = RecyclerView.NO_POSITION; // משתנה לבחירה
+
 
     public interface OnBarberClickListener {
         void onBarberSelected(User barber);
@@ -31,15 +34,25 @@ public class BarberAdapter extends RecyclerView.Adapter<BarberAdapter.BarberView
         return new BarberViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull BarberViewHolder holder, int position) {
         User barber = barberList.get(position);
         holder.tvName.setText(barber.getFullName());
         holder.tvType.setText(barber.getType());
 
+        if (selectedPosition == position) {
+            holder.itemView.setBackgroundResource(R.drawable.rounded_selected_bg); // צבע נבחר (לדוגמה: ורוד)
+        } else {
+            holder.itemView.setBackgroundResource(R.drawable.light_blue_bg);
+        }
+
         holder.itemView.setOnClickListener(v -> {
+            int previousPosition = selectedPosition;
+            selectedPosition = holder.getAdapterPosition();
+            notifyItemChanged(previousPosition);
+            notifyItemChanged(selectedPosition);
             if (listener != null) {
-                barber.setId(barber.getId()); // Ensure ID is set properly
                 listener.onBarberSelected(barber);
             }
         });
@@ -59,4 +72,11 @@ public class BarberAdapter extends RecyclerView.Adapter<BarberAdapter.BarberView
             tvType = itemView.findViewById(R.id.tvBarberType);
         }
     }
+    public void setSelectedPosition(int position) {
+        int previousPosition = selectedPosition;
+        selectedPosition = position;
+        notifyItemChanged(previousPosition);
+        notifyItemChanged(selectedPosition);
+    }
+
 }

@@ -23,12 +23,21 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+
+
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
+
+    public interface OnAppointmentCreatedListener {
+        void onAppointmentCreated(boolean success);
+    }
 
     public interface LoginCallback {
         void onLoginResult(boolean isSuccess);
     }
+
+
+
     public interface RegisterCallback {
         void onRegisterResult(boolean isSuccess, String message);
     }
@@ -191,9 +200,8 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    public void AddAppointmentWithAutoID(String clientId, String barberId, String date, String time) {
+    public void AddAppointmentWithAutoID(String clientId, String barberId, String date, String time, OnAppointmentCreatedListener listener) {
         DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
-
         String appointmentId = appointmentsRef.push().getKey();  // Generate unique ID
 
         if (appointmentId != null) {
@@ -202,14 +210,24 @@ public class MainActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Toast.makeText(MainActivity.this, "Appointment created successfully!", Toast.LENGTH_SHORT).show();
+                            if (listener != null) {
+                                listener.onAppointmentCreated(true);
+                            }
                         } else {
                             Toast.makeText(MainActivity.this, "Failed to create appointment. Try again.", Toast.LENGTH_SHORT).show();
+                            if (listener != null) {
+                                listener.onAppointmentCreated(false);
+                            }
                         }
                     });
         } else {
             Toast.makeText(MainActivity.this, "Failed to generate appointment ID.", Toast.LENGTH_SHORT).show();
+            if (listener != null) {
+                listener.onAppointmentCreated(false);
+            }
         }
     }
+
 
 
 }

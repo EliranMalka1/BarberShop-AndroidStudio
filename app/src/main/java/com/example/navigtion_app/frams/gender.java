@@ -70,7 +70,9 @@ public class gender extends Fragment {
         shortHair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_gender_to_new_apointment);
+                Bundle bundle = new Bundle();
+                bundle.putString("hairType", "shortHair");
+                Navigation.findNavController(view).navigate(R.id.action_gender_to_new_apointment, bundle);
             }
         });
 
@@ -78,7 +80,9 @@ public class gender extends Fragment {
         longHair.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Navigation.findNavController(view).navigate(R.id.action_gender_to_new_apointment);
+                Bundle bundle = new Bundle();
+                bundle.putString("hairType", "longHair");
+                Navigation.findNavController(view).navigate(R.id.action_gender_to_new_apointment, bundle);
             }
         });
 

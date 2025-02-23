@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="10dp"
-    android:background="@android:color/white"
+    android:background="@drawable/rounded_shadow_bg"
     android:layout_margin="4dp"
     android:elevation="2dp">
 
@@ -14,7 +15,8 @@
         android:layout_height="wrap_content"
         android:text="Barber Name"
         android:textSize="18sp"
-        android:textColor="@android:color/black"/>
+        android:textColor="@android:color/black"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvBarberType"
@@ -22,5 +24,5 @@
         android:layout_height="wrap_content"
         android:text="Hair Type"
         android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"/>
+        android:textColor="@android:color/darker_gray" />
 </LinearLayout>

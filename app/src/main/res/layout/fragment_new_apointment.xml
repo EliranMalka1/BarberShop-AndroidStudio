@@ -35,7 +35,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
-                    android:id="@+id/imageView5"
+                    android:id="@+id/backBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/back_white"
@@ -60,7 +60,7 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/imageView6"
-                    app:layout_constraintStart_toEndOf="@+id/imageView5"
+                    app:layout_constraintStart_toEndOf="@+id/backBtn"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -82,21 +82,21 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView
-                        android:id="@+id/textView10"
+                        android:id="@+id/name"
+                        android:text="name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="name"
                         android:textColor="@color/black"
                         android:textSize="22sp"
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/textView12"
+                        android:id="@+id/type"
+                        android:text="type"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:text="type" />
+                        android:gravity="center" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -105,8 +105,8 @@
                         android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/textView14"
-                            android:layout_width="100dp"
+                            android:id="@+id/Phone"
+                            android:layout_width="wrap_content"
                             android:layout_height="50dp"
                             android:layout_margin="8dp"
                             android:background="@drawable/light_blue_bg"
@@ -120,8 +120,8 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/textView13"
-                            android:layout_width="100dp"
+                            android:id="@+id/Mail"
+                            android:layout_width="wrap_content"
                             android:layout_height="50dp"
                             android:layout_margin="8dp"
                             android:background="@drawable/light_red_bg"
@@ -212,19 +212,22 @@
 
                 </LinearLayout>
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/imageView9"
+                <TextView
+                    android:id="@+id/barberNameCircle"
                     android:layout_width="110dp"
                     android:layout_height="110dp"
+                    android:background="@drawable/circle_bg"
+                    android:gravity="center"
                     android:padding="8dp"
+                    android:text="Barber"
+                    android:textColor="@android:color/black"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/linearLayout2"
-                    app:shapeAppearanceOverlay="@style/fullCornerImage"
-                    app:strokeColor="@color/white"
-                    app:strokeWidth="6dp"
-                    tools:src="@tools:sample/avatars" />
+                    tools:ignore="MissingConstraints" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>

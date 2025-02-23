@@ -39,10 +39,10 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
 
         // Highlight selected item
         if (selectedPosition == position) {
-            holder.tvTime.setBackgroundColor(Color.parseColor("#FF4081")); // Pink when selected
+            holder.tvTime.setBackgroundResource(R.drawable.rounded_selected_bg);
             holder.tvTime.setTextColor(Color.WHITE);
         } else {
-            holder.tvTime.setBackgroundColor(Color.TRANSPARENT);
+            holder.tvTime.setBackgroundResource(R.drawable.light_blue_bg);
             holder.tvTime.setTextColor(Color.BLACK);
         }
 
@@ -69,5 +69,9 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
             super(itemView);
             tvTime = itemView.findViewById(R.id.tvTime);
         }
+    }
+    public void resetSelection() {
+        selectedPosition = RecyclerView.NO_POSITION;
+        notifyDataSetChanged();
     }
 }

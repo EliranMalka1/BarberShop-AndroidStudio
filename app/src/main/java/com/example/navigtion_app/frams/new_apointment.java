@@ -5,10 +5,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,6 +51,12 @@ public class new_apointment extends Fragment {
     private List<User> barberList;
     private DatabaseReference usersRef;
     private String selectedBarberId;
+    private String hairType;
+    private TextView nameText;
+    private TextView typeText;
+    private TextView phoneText;
+    private TextView mailText;
+    private TextView barberNameCircle;
 
     public new_apointment() {
         // Required empty public constructor
@@ -65,8 +74,24 @@ public class new_apointment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_new_apointment, container, false);
+        if (getArguments() != null) {
+            hairType = getArguments().getString("hairType");
+        }
 
+        View view = inflater.inflate(R.layout.fragment_new_apointment, container, false);
+        nameText = view.findViewById(R.id.name);
+        typeText = view.findViewById(R.id.type);
+        phoneText = view.findViewById(R.id.Phone);
+        mailText = view.findViewById(R.id.Mail);
+        barberNameCircle = view.findViewById(R.id.barberNameCircle);
+
+        ImageView backBtn = view.findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Navigation.findNavController(view).navigate(R.id.action_new_apointment_to_gender);
+            }
+        });
         // Initialize RecyclerViews
         dateRecyclerView = view.findViewById(R.id.DateSelect);
         dateRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
@@ -79,7 +104,13 @@ public class new_apointment extends Fragment {
         timeList = new ArrayList<>();
 
         // Set adapters with empty lists initially
-        dateAdapter = new DateAdapter(dateList, date -> selectedDate = date);
+        dateAdapter = new DateAdapter(dateList, date -> {
+            selectedDate = date;
+            selectedTime = null; // איפוס לוגי של בחירת השעה
+            if(timeAdapter != null) {
+                timeAdapter.resetSelection(); // איפוס עיצובי
+            }
+        });
         timeAdapter = new TimeAdapter(timeList, time -> selectedTime = time);
 
         dateRecyclerView.setAdapter(dateAdapter);
@@ -103,19 +134,31 @@ public class new_apointment extends Fragment {
 
     private void loadBarbers() {
         barberList = new ArrayList<>();
+
         usersRef.orderByChild("type").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 barberList.clear();
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
-                    if (user != null && ("Long Hair".equals(user.getType()) || "Short Hair".equals(user.getType()))) {
-                        barberList.add(user);
+                    if (user != null) {
+                        if ("longHair".equals(hairType) && "Long Hair".equals(user.getType())) {
+                            barberList.add(user);
+                        } else if ("shortHair".equals(hairType) && "Short Hair".equals(user.getType())) {
+                            barberList.add(user);
+                        }
                     }
                 }
 
                 // Set adapter after fetching data
                 barberAdapter = new BarberAdapter(barberList, barber -> {
+                    selectedBarberId = barber.getId();
+                    // Update the TextViews with the selected barber's data
+                    nameText.setText(barber.getFullName());
+                    typeText.setText(barber.getType());
+                    phoneText.setText(barber.getPhone());
+                    mailText.setText(barber.getEmail());
+                    barberNameCircle.setText(barber.getFullName());
                     selectedBarberId = barber.getId();
                     if (selectedBarberId != null) {
                         Toast.makeText(getContext(), "Selected: " + barber.getFullName(), Toast.LENGTH_SHORT).show();
@@ -124,8 +167,21 @@ public class new_apointment extends Fragment {
                         Toast.makeText(getContext(), "Failed to get Barber ID.", Toast.LENGTH_SHORT).show();
                     }
                 });
-
                 barberRecyclerView.setAdapter(barberAdapter);
+
+                // אם הרשימה לא ריקה, בחר אוטומטית את הברבר הראשון
+                if (!barberList.isEmpty()) {
+                    selectedBarberId = barberList.get(0).getId();
+                    nameText.setText(barberList.get(0).getFullName());
+                    typeText.setText(barberList.get(0).getType());
+                    phoneText.setText(barberList.get(0).getPhone());
+                    mailText.setText(barberList.get(0).getEmail());
+                    barberNameCircle.setText(barberList.get(0).getFullName());
+
+                    Toast.makeText(getContext(), "Selected: " + barberList.get(0).getFullName(), Toast.LENGTH_SHORT).show();
+                    barberAdapter.setSelectedPosition(0); // עדכון הבחירה העיצובית במתאם
+                    resetDateAndTimeSelection();
+                }
             }
 
             @Override
@@ -141,10 +197,12 @@ public class new_apointment extends Fragment {
         dateList.clear();
         timeList.clear();
 
+        dateAdapter.resetSelection();
+        timeAdapter.resetSelection();
+
         if (selectedBarberId != null) {
             dateList.addAll(getNextTwoWeeksDates());
             timeList.addAll(generateTimeSlots());
-
             dateAdapter.notifyDataSetChanged();
             timeAdapter.notifyDataSetChanged();
         } else {
@@ -202,10 +260,16 @@ public class new_apointment extends Fragment {
         String clientId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
 
         if (clientId != null) {
-            ((MainActivity) getActivity()).AddAppointmentWithAutoID(clientId, selectedBarberId, selectedDate, selectedTime);
+            ((MainActivity) getActivity()).AddAppointmentWithAutoID(clientId, selectedBarberId, selectedDate, selectedTime, success -> {
+                if (success) {
+                    // במקרה של הצלחה, ננווט לדף הראשי
+                    Navigation.findNavController(getView()).navigate(R.id.action_new_apointment_to_fragment_main);
+                }
+            });
         } else {
             Toast.makeText(getContext(), "User not authenticated.", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 }

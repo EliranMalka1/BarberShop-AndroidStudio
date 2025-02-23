@@ -76,6 +76,9 @@
         <action
             android:id="@+id/action_new_apointment_to_gender"
             app:destination="@id/gender" />
+        <action
+            android:id="@+id/action_new_apointment_to_fragment_main"
+            app:destination="@id/fragment_main" />
     </fragment>
     <fragment
         android:id="@+id/fragment_profile"

@@ -16,6 +16,11 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
     private int selectedPosition = RecyclerView.NO_POSITION;
     private OnDateClickListener onDateClickListener;
 
+    public void resetSelection() {
+        selectedPosition = RecyclerView.NO_POSITION;
+        notifyDataSetChanged();
+    }
+
     public interface OnDateClickListener {
         void onDateSelected(String date);
     }
@@ -39,10 +44,9 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
 
         // Highlight selected item
         if (selectedPosition == position) {
-            holder.tvDate.setBackgroundColor(Color.parseColor("#FF4081")); // Pink when selected
-            holder.tvDate.setTextColor(Color.WHITE);
+            holder.tvDate.setBackgroundResource(R.drawable.rounded_selected_bg);            holder.tvDate.setTextColor(Color.WHITE);
         } else {
-            holder.tvDate.setBackgroundColor(Color.TRANSPARENT);
+            holder.tvDate.setBackgroundResource(R.drawable.light_blue_bg);
             holder.tvDate.setTextColor(Color.BLACK);
         }
 
