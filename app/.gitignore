@@ -1,3 +1,5 @@
 /build
 # Ignore Firebase Service Account JSON file
 app/src/main/assets/*.json
+app/src/main/assets/app-data-*.json
+
