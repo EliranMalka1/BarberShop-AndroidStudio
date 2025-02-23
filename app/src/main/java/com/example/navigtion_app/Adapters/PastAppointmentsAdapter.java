@@ -3,7 +3,6 @@ package com.example.navigtion_app.Adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,13 +13,30 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class PastAppointmentsAdapter extends RecyclerView.Adapter<PastAppointmentsAdapter.ViewHolder> {
     private final List<Appointment> pastAppointments;
 
     public PastAppointmentsAdapter(List<Appointment> pastAppointments) {
         this.pastAppointments = pastAppointments;
+
+        // ✅ מיון הפגישות מהקרובה ביותר לרחוקה ביותר
+        Collections.sort(this.pastAppointments, (a1, a2) -> {
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm", Locale.getDefault());
+                Date date1 = sdf.parse(a1.getDate() + " " + a1.getTime());
+                Date date2 = sdf.parse(a2.getDate() + " " + a2.getTime());
+                return date1.compareTo(date2); // מיון מהקרוב לרחוק
+            } catch (ParseException e) {
+                return 0;
+            }
+        });
     }
 
     @NonNull
