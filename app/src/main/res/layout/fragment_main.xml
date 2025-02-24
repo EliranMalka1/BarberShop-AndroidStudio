@@ -46,6 +46,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/logOut"
                     app:layout_constraintStart_toEndOf="@id/UpdateInfo"
+                    android:gravity="center"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <TextView

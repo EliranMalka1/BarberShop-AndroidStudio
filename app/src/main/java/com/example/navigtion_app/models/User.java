@@ -7,8 +7,9 @@ public class User {
     private String email;
     private String phone;
     private String fullName;
-
     private String type;
+
+    private String favorite;
 
     // Default constructor required for Firebase deserialization
     public User() {
@@ -21,6 +22,7 @@ public class User {
         this.phone = phone;
         this.fullName = fullName;
         this.type = "client";
+        this.favorite =null;
     }
 
     public User(String email,String phone, String fullName,String type)
@@ -30,6 +32,7 @@ public class User {
         this.phone = phone;
         this.fullName = fullName;
         this.type = type;
+        this.favorite =null;
     }
 
     // Getter and setter for id
@@ -67,8 +70,14 @@ public class User {
     public String getType() {
         return type;
     }
-
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getFavorite() {
+        return favorite;
+    }
+    public void setFavorite(String favorite) {
+        this.favorite = favorite;
     }
 }

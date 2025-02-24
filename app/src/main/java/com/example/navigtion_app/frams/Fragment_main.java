@@ -86,6 +86,7 @@ public class Fragment_main extends Fragment {
         tvOtherUserEmail = view.findViewById(R.id.tvOtherUserEmail);
         tvOtherUserType = view.findViewById(R.id.tvOtherUserType);
 
+
         if (currentUser != null) {
             userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
             loadUserData(view);
@@ -337,8 +338,8 @@ public class Fragment_main extends Fragment {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
                         userNameTextView.setText(String.format("Hello %s", user.getFullName()));
-                        populateButtons(user.getType(), view);
-
+                        // מעבירים גם את הערך של favorite מהאובייקט user
+                        populateButtons(user.getType(), view, user.getFavorite());
                         // חיפוש הפגישה הקרובה ביותר עבור המשתמש
                         loadNextAppointmentForUser(user.getId());
                     }
@@ -352,11 +353,13 @@ public class Fragment_main extends Fragment {
         });
     }
 
-    private void populateButtons(String userType, View view) {
+    private void populateButtons(String userType, View view, String favorite) {
         buttonList = new ArrayList<>();
         if ("client".equals(userType)) {
             buttonList.add(new ButtonItem("New Haircut", R.drawable.ic_plus, ContextCompat.getColor(view.getContext(), R.color.blue), R.id.action_fragment_main_to_gender));
-            buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_fragment_profile));
+            if(favorite != null) {
+                buttonList.add(new ButtonItem("My Barber", R.drawable.ic_personal, ContextCompat.getColor(requireContext(), R.color.green), R.id.action_fragment_main_to_fragment_profile));
+            }
             buttonList.add(new ButtonItem("Future Haircuts", R.drawable.ic_future, ContextCompat.getColor(requireContext(), R.color.orange), R.id.action_fragment_main_to_fragment_FutureAppointments));
             buttonList.add(new ButtonItem("History", R.drawable.ic_history, ContextCompat.getColor(requireContext(), R.color.purple2), R.id.action_fragment_main_to_fragment_past_appointments));
         } else {

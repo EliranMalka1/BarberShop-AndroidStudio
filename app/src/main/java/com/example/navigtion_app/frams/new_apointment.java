@@ -1,5 +1,6 @@
 package com.example.navigtion_app.frams;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +35,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import android.content.ClipboardManager;
+import android.content.ClipData;
+
 
 public class new_apointment extends Fragment {
 
@@ -57,6 +61,10 @@ public class new_apointment extends Fragment {
     private TextView phoneText;
     private TextView mailText;
     private TextView barberNameCircle;
+    private List<Appointment> appointmentsList = new ArrayList<>();
+
+    // נשמור את הערך הנוכחי של ה-favorite של המשתמש
+    private String userFavorite = null;
 
     public new_apointment() {
         // Required empty public constructor
@@ -85,51 +93,134 @@ public class new_apointment extends Fragment {
         mailText = view.findViewById(R.id.Mail);
         barberNameCircle = view.findViewById(R.id.barberNameCircle);
 
-        ImageView backBtn = view.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(new View.OnClickListener() {
+        // לאחר איתחול המשתנה phoneText, הוסיפו את הקוד הבא:
+        phoneText.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Navigation.findNavController(view).navigate(R.id.action_new_apointment_to_gender);
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Phone", phoneText.getText().toString());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), "Copied: " + phoneText.getText(), Toast.LENGTH_SHORT).show();
             }
         });
-        // Initialize RecyclerViews
+
+        mailText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Mail", mailText.getText().toString());
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getContext(), "Copied: " + mailText.getText(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        ImageView backBtn = view.findViewById(R.id.backBtn);
+        backBtn.setOnClickListener(v ->
+                Navigation.findNavController(v).navigate(R.id.action_new_apointment_to_gender));
+
+        // הגדרת ה־RecyclerViews ותפריטי הבחירה
         dateRecyclerView = view.findViewById(R.id.DateSelect);
         dateRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         timeRecyclerView = view.findViewById(R.id.TimeSelect);
         timeRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        // Initialize lists
         dateList = new ArrayList<>();
         timeList = new ArrayList<>();
 
-        // Set adapters with empty lists initially
         dateAdapter = new DateAdapter(dateList, date -> {
             selectedDate = date;
-            selectedTime = null; // איפוס לוגי של בחירת השעה
-            if(timeAdapter != null) {
-                timeAdapter.resetSelection(); // איפוס עיצובי
+            selectedTime = null; // איפוס בחירת השעה
+            if (timeAdapter != null) {
+                timeAdapter.resetSelection();
             }
+            updateTimeSlotsForSelectedDate(selectedDate);
         });
         timeAdapter = new TimeAdapter(timeList, time -> selectedTime = time);
 
         dateRecyclerView.setAdapter(dateAdapter);
         timeRecyclerView.setAdapter(timeAdapter);
 
-        // Book Appointment Button
+        // כפתור קביעת התור
         bookAppointmentButton = view.findViewById(R.id.button);
         bookAppointmentButton.setOnClickListener(v -> bookAppointment());
 
+        // רשימת הברברים
         barberRecyclerView = view.findViewById(R.id.barberList);
         barberRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
-        // Initialize Firebase Reference
         usersRef = FirebaseDatabase.getInstance().getReference("users");
-
-        // Fetch barbers with "Long Hair" or "Short Hair"
         loadBarbers();
+        dateList.addAll(getNextTwoWeeksDates());
+        dateAdapter.notifyDataSetChanged();
 
+        // טיפול ב-favorite - הגדרת האייקון והלוגיקה
+        final ImageView favoriteImageView = view.findViewById(R.id.imageView6);
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String clientId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+        if (clientId != null) {
+            DatabaseReference clientRef = FirebaseDatabase.getInstance().getReference("users").child(clientId);
+            // קריאת ערך ה-favorite של המשתמש ושמירתו ב-userFavorite
+            clientRef.child("favorite").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    userFavorite = snapshot.getValue(String.class);
+                    // עדכון צבע האייקון – אדום רק אם userFavorite קיים ותואם ל-selectedBarberId
+                    updateFavoriteIconColor(favoriteImageView);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    // טיפול בשגיאה במידת הצורך
+                }
+            });
+
+            // לחיצה על האייקון – עדכון שדה favorite למזהה הספר הנבחר
+            favoriteImageView.setOnClickListener(v -> {
+                if (selectedBarberId == null) {
+                    Toast.makeText(getContext(), "Please select a barber first.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // אם ה-favorite הנוכחי שווה ל-selectedBarberId, נעדכן ל-null
+                if (selectedBarberId.equals(userFavorite)) {
+                    clientRef.child("favorite").setValue(null)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    userFavorite = null;
+                                    updateFavoriteIconColor(favoriteImageView);
+                                    Toast.makeText(getContext(), "Favorite cleared!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Failed to clear favorite", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                } else {
+                    // אחרת, נעדכן את ה-favorite למזהה הספר הנבחר
+                    clientRef.child("favorite").setValue(selectedBarberId)
+                            .addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    userFavorite = selectedBarberId;
+                                    updateFavoriteIconColor(favoriteImageView);
+                                    Toast.makeText(getContext(), "Favorite updated!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "Failed to update favorite", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                }
+            });
+
+
+        }
         return view;
+    }
+
+    // פונקציה לעדכון צבע האייקון בהתאם לערך userFavorite ול-selectedBarberId
+    private void updateFavoriteIconColor(ImageView favoriteImageView) {
+        if (userFavorite != null && selectedBarberId != null && userFavorite.equals(selectedBarberId)) {
+            favoriteImageView.setColorFilter(getResources().getColor(android.R.color.holo_red_dark));
+        } else {
+            favoriteImageView.clearColorFilter();
+        }
     }
 
     private void loadBarbers() {
@@ -153,16 +244,19 @@ public class new_apointment extends Fragment {
                 // Set adapter after fetching data
                 barberAdapter = new BarberAdapter(barberList, barber -> {
                     selectedBarberId = barber.getId();
-                    // Update the TextViews with the selected barber's data
+                    // עדכון פרטי הספר
                     nameText.setText(barber.getFullName());
                     typeText.setText(barber.getType());
                     phoneText.setText(barber.getPhone());
                     mailText.setText(barber.getEmail());
                     barberNameCircle.setText(barber.getFullName());
-                    selectedBarberId = barber.getId();
+
                     if (selectedBarberId != null) {
                         Toast.makeText(getContext(), "Selected: " + barber.getFullName(), Toast.LENGTH_SHORT).show();
                         resetDateAndTimeSelection();
+                        fetchAppointmentsForSelectedBarber(selectedBarberId);
+                        // עדכון צבע האייקון בהתאם – אם הספר הנבחר תואם ל-favorite
+                        updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
                     } else {
                         Toast.makeText(getContext(), "Failed to get Barber ID.", Toast.LENGTH_SHORT).show();
                     }
@@ -179,8 +273,10 @@ public class new_apointment extends Fragment {
                     barberNameCircle.setText(barberList.get(0).getFullName());
 
                     Toast.makeText(getContext(), "Selected: " + barberList.get(0).getFullName(), Toast.LENGTH_SHORT).show();
-                    barberAdapter.setSelectedPosition(0); // עדכון הבחירה העיצובית במתאם
+                    barberAdapter.setSelectedPosition(0);
                     resetDateAndTimeSelection();
+                    fetchAppointmentsForSelectedBarber(selectedBarberId);
+                    updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
                 }
             }
 
@@ -200,16 +296,9 @@ public class new_apointment extends Fragment {
         dateAdapter.resetSelection();
         timeAdapter.resetSelection();
 
-        if (selectedBarberId != null) {
-            dateList.addAll(getNextTwoWeeksDates());
-            timeList.addAll(generateTimeSlots());
-            dateAdapter.notifyDataSetChanged();
-            timeAdapter.notifyDataSetChanged();
-        } else {
-            Toast.makeText(getContext(), "Please select a barber first.", Toast.LENGTH_SHORT).show();
-        }
+        dateList.addAll(getNextTwoWeeksDates());
+        dateAdapter.notifyDataSetChanged();
     }
-
 
     private List<String> getNextTwoWeeksDates() {
         List<String> dates = new ArrayList<>();
@@ -222,7 +311,16 @@ public class new_apointment extends Fragment {
         return dates;
     }
 
-    private List<String> generateTimeSlots() {
+    private void updateTimeSlotsForSelectedDate(String selectedDate) {
+        if (selectedDate == null) return;
+        // נרמל את התאריך (מסיר "\n" ומרווחים מיותרים)
+        String normalizedDate = selectedDate.replace("\n", " ").trim();
+        timeList.clear();
+        timeList.addAll(generateTimeSlots(normalizedDate));
+        timeAdapter.notifyDataSetChanged();
+    }
+
+    private List<String> generateTimeSlots(String normalizedSelectedDate) {
         List<String> times = new ArrayList<>();
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
@@ -234,8 +332,24 @@ public class new_apointment extends Fragment {
         endCalendar.set(Calendar.MINUTE, 0);
 
         while (calendar.before(endCalendar)) {
-            times.add(timeFormat.format(calendar.getTime()));
-            calendar.add(Calendar.MINUTE, 30);
+            String timeSlot = timeFormat.format(calendar.getTime());
+            boolean taken = false;
+            for (Appointment appointment : appointmentsList) {
+                if (appointment.getDate().equals(normalizedSelectedDate) &&
+                        appointment.getTime().equals(timeSlot)) {
+                    taken = true;
+                    break;
+                }
+            }
+            if (!taken) {
+                times.add(timeSlot);
+            }
+
+            if (hairType.equals("longHair")) {
+                calendar.add(Calendar.MINUTE, 60);
+            } else {
+                calendar.add(Calendar.MINUTE, 30);
+            }
         }
         return times;
     }
@@ -262,7 +376,6 @@ public class new_apointment extends Fragment {
         if (clientId != null) {
             ((MainActivity) getActivity()).AddAppointmentWithAutoID(clientId, selectedBarberId, selectedDate, selectedTime, success -> {
                 if (success) {
-                    // במקרה של הצלחה, ננווט לדף הראשי
                     Navigation.findNavController(getView()).navigate(R.id.action_new_apointment_to_fragment_main);
                 }
             });
@@ -271,5 +384,29 @@ public class new_apointment extends Fragment {
         }
     }
 
+    private void fetchAppointmentsForSelectedBarber(String barberId) {
+        DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
+        appointmentsRef.orderByChild("barberId").equalTo(barberId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        appointmentsList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            Appointment appointment = data.getValue(Appointment.class);
+                            if (appointment != null) {
+                                appointmentsList.add(appointment);
+                            }
+                        }
+                        if (selectedDate != null) {
+                            updateTimeSlotsForSelectedDate(selectedDate);
+                        }
+                        Toast.makeText(getContext(), "נמצאו " + appointmentsList.size() + " תורים", Toast.LENGTH_SHORT).show();
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getContext(), "שגיאה בטעינת התורים: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 }

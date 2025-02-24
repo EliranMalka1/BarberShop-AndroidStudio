@@ -43,6 +43,9 @@
         <action
             android:id="@+id/action_fragment_main_to_fragment_cancel_remaining_appointments"
             app:destination="@id/fragment_cancel_remaining_appointments" />
+        <action
+            android:id="@+id/action_fragment_main_to_new_apointment"
+            app:destination="@id/new_apointment" />
     </fragment>
     <fragment
         android:id="@+id/fragment_reg"
