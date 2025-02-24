@@ -22,7 +22,6 @@ import com.example.navigtion_app.models.User;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuth.AuthStateListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -37,7 +36,7 @@ public class Fragment_profile extends Fragment {
     private DatabaseReference userDatabaseRef;
     private FirebaseAuth auth;
     private String pendingEmail = null, pendingPassword = null;
-    private AuthStateListener authStateListener;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
     public Fragment_profile() {}
 
@@ -100,26 +99,21 @@ public class Fragment_profile extends Fragment {
                         return;
                     }
 
-                    final String[] newFullName = { fullNameEditText.getText().toString().trim() };
-                    final String[] newEmail = { emailEditText.getText().toString().trim() };
-                    final String[] newPhone = { phoneEditText.getText().toString().trim() };
-                    final String[] newPassword = { passwordEditText.getText().toString().trim() };
-                    final String[] type= {existingUser.getType()};
-                    if (newFullName[0].isEmpty()) newFullName[0] = existingUser.getFullName();
-                    if (newEmail[0].isEmpty()) newEmail[0] = existingUser.getEmail();
-                    if (newPhone[0].isEmpty()) newPhone[0] = existingUser.getPhone();
-                    if (newPassword[0].isEmpty()) newPassword[0] = null;
+                    final String newFullName = fullNameEditText.getText().toString().trim().isEmpty() ? existingUser.getFullName() : fullNameEditText.getText().toString().trim();
+                    final String newEmail = emailEditText.getText().toString().trim().isEmpty() ? existingUser.getEmail() : emailEditText.getText().toString().trim();
+                    final String newPhone = phoneEditText.getText().toString().trim().isEmpty() ? existingUser.getPhone() : phoneEditText.getText().toString().trim();
+                    final String newPassword = passwordEditText.getText().toString().trim().isEmpty() ? null : passwordEditText.getText().toString().trim();
+                    final String type = existingUser.getType();
 
-                    boolean emailChanged = !newEmail[0].equals(existingUser.getEmail());
-                    boolean passwordChanged = newPassword[0] != null;
+                    boolean emailChanged = !newEmail.equals(existingUser.getEmail());
+                    boolean passwordChanged = newPassword != null;
 
                     if (emailChanged || passwordChanged) {
                         showPasswordDialog(password -> {
-                            reauthenticateAndUpdate(firebaseUser, newEmail[0], newPassword[0], password, newFullName[0], newPhone[0],type[0], callback);
+                            reauthenticateAndUpdate(firebaseUser, newEmail, newPassword, password, newFullName, newPhone, type, existingUser.getId(), callback);
                         });
                     } else {
-                        updateDatabase(newEmail[0], newPhone[0], newFullName[0],type[0], callback);
-                        navigateToMain();
+                        updateDatabase(existingUser.getId(), newEmail, newPhone, newFullName, type, callback);
                     }
                 }
             }
@@ -128,116 +122,6 @@ public class Fragment_profile extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
-
-    private void reauthenticateAndUpdate(FirebaseUser user, String newEmail, String newPassword, String password, String newFullName, String newPhone,String type, UpdateCallback callback) {
-        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
-
-        user.reauthenticate(credential).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d("FirebaseAuth", "Reauthentication successful");
-
-                if (newPassword != null) {
-                    user.updatePassword(newPassword).addOnCompleteListener(passwordTask -> {
-                        if (passwordTask.isSuccessful()) {
-                            Log.d("FirebaseAuth", "Password updated successfully");
-                        } else {
-                            Log.e("FirebaseAuth", "Failed to update password", passwordTask.getException());
-                        }
-                    });
-                }
-
-                if (!newEmail.equals(user.getEmail())) {
-                    pendingEmail = newEmail;
-
-                    user.verifyBeforeUpdateEmail(newEmail).addOnCompleteListener(verificationTask -> {
-                        if (verificationTask.isSuccessful()) {
-                            Toast.makeText(getContext(), "A verification email has been sent. Please check your inbox.", Toast.LENGTH_LONG).show();
-
-                            authStateListener = firebaseAuth -> {
-                                FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-                                if (currentUser != null && pendingEmail != null && currentUser.isEmailVerified()) {
-                                    currentUser.updateEmail(pendingEmail).addOnCompleteListener(emailUpdateTask -> {
-                                        if (emailUpdateTask.isSuccessful()) {
-                                            Log.d("FirebaseAuth", "Email successfully updated in FirebaseAuth");
-
-                                            updateDatabase(pendingEmail, newPhone, newFullName,type, success -> {
-                                                if (success) {
-                                                    Log.d("FirebaseDB", "Database updated with new email");
-                                                }
-                                            });
-                                        }
-                                        auth.removeAuthStateListener(authStateListener);
-                                    });
-                                }
-                            };
-
-                            auth.addAuthStateListener(authStateListener);
-                            auth.signOut();
-                            navigateToLogin();
-                        } else {
-                            Log.e("FirebaseAuth", "Failed to send verification email", verificationTask.getException());
-                        }
-                    });
-                } else {
-                    updateDatabase(newEmail, newPhone, newFullName,type, callback);
-                    navigateToMain();
-                }
-            } else {
-                Log.e("FirebaseAuth", "Reauthentication failed", task.getException());
-            }
-        });
-    }
-
-    private void navigateToMain() {
-        if (isAdded() && getView() != null) {
-            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-            if (user != null) {
-                DatabaseReference userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(user.getUid());
-
-                userDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            String userType = snapshot.child("type").getValue(String.class);
-                            if ("manager".equals(userType)) {
-                                Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_managerPage);
-                            } else {
-                                Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
-                            }
-                        } else {
-                            Toast.makeText(getContext(), "User data not found", Toast.LENGTH_SHORT).show();
-                            Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(getContext(), "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                        Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
-                    }
-                });
-            } else {
-                Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
-                Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
-            }
-        }
-    }
-
-
-    private void navigateToLogin() {
-        if (isAdded() && getView() != null) {
-            Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_login);
-        }
-    }
-
-    private void updateDatabase(String newEmail, String newPhone, String newFullName,String type, UpdateCallback callback) {
-        User user = new User(newEmail, newPhone,newFullName,type); // יצירת אובייקט עם הנתונים החדשים
-
-        userDatabaseRef.setValue(user).addOnCompleteListener(task -> {
-            callback.onUpdateResult(task.isSuccessful());
-        });
-    }
-
 
     private void showPasswordDialog(PasswordCallback callback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -258,13 +142,40 @@ public class Fragment_profile extends Fragment {
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
-
         builder.show();
     }
 
+    private void updateDatabase(String userId, String newEmail, String newPhone, String newFullName, String type, UpdateCallback callback) {
+        User user = new User(userId, newEmail, newPhone, newFullName, type);
+        userDatabaseRef.setValue(user).addOnCompleteListener(task -> {
+            callback.onUpdateResult(task.isSuccessful());
+        });
+    }
+
+    private void reauthenticateAndUpdate(FirebaseUser user, String newEmail, String newPassword, String password, String newFullName, String newPhone, String type, String userId, UpdateCallback callback) {
+        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
+
+        user.reauthenticate(credential).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (newPassword != null) {
+                    user.updatePassword(newPassword);
+                }
+                user.updateEmail(newEmail).addOnCompleteListener(emailUpdateTask -> {
+                    if (emailUpdateTask.isSuccessful()) {
+                        updateDatabase(userId, newEmail, newPhone, newFullName, type, callback);
+                    }
+                });
+            }
+        });
+    }
+
+    private void navigateToMain() {
+        if (isAdded() && getView() != null) {
+            Navigation.findNavController(requireView()).navigate(R.id.action_fragment_profile_to_fragment_main);
+        }
+    }
 
     interface PasswordCallback {
         void onPasswordEntered(String password);
     }
-
 }

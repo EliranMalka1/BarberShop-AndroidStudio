@@ -35,6 +35,15 @@ public class User {
         this.favorite =null;
     }
 
+    public User(String id, String email, String phone, String fullName, String type) {
+        this.id = id; // לשמור את ה-ID הקיים במקום ליצור חדש
+        this.email = email;
+        this.phone = phone;
+        this.fullName = fullName;
+        this.type = type;
+        this.favorite = null;
+    }
+
     // Getter and setter for id
     public String getId() {
         return id;
