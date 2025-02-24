@@ -157,7 +157,7 @@ public class Fragment_main extends Fragment {
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(customerEmail).matches()) {
             Toast.makeText(getContext(), "Invalid email format: " + customerEmail, Toast.LENGTH_SHORT).show();
-            Log.e("Email", "❌ Invalid email format: " + customerEmail);
+            Log.e("Email", " Invalid email format: " + customerEmail);
             return;
         }
 
@@ -195,20 +195,20 @@ public class Fragment_main extends Fragment {
                 try {
                     String responseBody = response.body() != null ? response.body().string() : "No response";
                     if (response.isSuccessful()) {
-                        Log.d("Email", "✅ Email sent successfully! Server response: " + responseBody);
+                        Log.d("Email", " Email sent successfully! Server response: " + responseBody);
                         deleteAppointmentFromDatabase(); // לאחר שליחת האימייל - מחיקת הפגישה מה-Firebase
                     } else {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
-                        Log.e("Email", "❌ Failed to send email. Server response: " + errorBody);
+                        Log.e("Email", " Failed to send email. Server response: " + errorBody);
                     }
                 } catch (IOException e) {
-                    Log.e("Email", "❌ Failed to read response from server", e);
+                    Log.e("Email", " Failed to read response from server", e);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e("Email", "❌ Error sending email: " + t.getMessage());
+                Log.e("Email", "Error sending email: " + t.getMessage());
             }
         });
     }
@@ -230,7 +230,7 @@ public class Fragment_main extends Fragment {
                         // מחיקת הפגישה מה-Firebase
                         appointmentSnapshot.getRef().removeValue()
                                 .addOnSuccessListener(aVoid -> {
-                                    Log.d("Firebase", "✅ Appointment deleted successfully!");
+                                    Log.d("Firebase", "Appointment deleted successfully!");
                                     Toast.makeText(getContext(), "Appointment canceled.", Toast.LENGTH_SHORT).show();
 
                                     // קריאה לפונקציה שמאתרת את הפגישה הקרובה הבאה
@@ -240,7 +240,7 @@ public class Fragment_main extends Fragment {
                                     }
                                 })
                                 .addOnFailureListener(e -> {
-                                    Log.e("Firebase", "❌ Failed to delete appointment", e);
+                                    Log.e("Firebase", "Failed to delete appointment", e);
                                     Toast.makeText(getContext(), "Failed to cancel appointment.", Toast.LENGTH_SHORT).show();
                                 });
 
@@ -251,7 +251,7 @@ public class Fragment_main extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "❌ Failed to access database: " + error.getMessage());
+                Log.e("Firebase", "Failed to access database: " + error.getMessage());
             }
         });
     }
@@ -267,7 +267,7 @@ public class Fragment_main extends Fragment {
 
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(customerEmail).matches()) {
             Toast.makeText(getContext(), "Invalid email format: " + customerEmail, Toast.LENGTH_SHORT).show();
-            Log.e("Email", "❌ Invalid email format: " + customerEmail);
+            Log.e("Email", "Invalid email format: " + customerEmail);
             return;
         }
 
@@ -280,9 +280,9 @@ public class Fragment_main extends Fragment {
                 + "Best regards,\n"
                 + senderName;
 
-        Log.d("Email", "📧 Sending email to: " + customerEmail.trim());
-        Log.d("Email", "📧 Subject: " + subject);
-        Log.d("Email", "📧 Body: " + body);
+        Log.d("Email", "Sending email to: " + customerEmail.trim());
+        Log.d("Email", "Subject: " + subject);
+        Log.d("Email", "Body: " + body);
 
         // יצירת JSON עם הנתונים לשליחה
         Map<String, String> emailRequest = new HashMap<>();
@@ -293,7 +293,7 @@ public class Fragment_main extends Fragment {
         // הדפסת JSON ללוג כדי לוודא שהנתונים נכונים
         Gson gson = new Gson();
         String jsonRequest = gson.toJson(emailRequest);
-        Log.d("Email", "📨 JSON Sent to Server: " + jsonRequest);
+        Log.d("Email", "JSON Sent to Server: " + jsonRequest);
 
         // שליחת הבקשה ל-Google Apps Script
         ApiService apiService = new Retrofit.Builder()
@@ -310,20 +310,20 @@ public class Fragment_main extends Fragment {
                 try {
                     String responseBody = response.body() != null ? response.body().string() : "No response";
                     if (response.isSuccessful()) {
-                        Log.d("Email", "✅ Email sent successfully! Server response: " + responseBody);
+                        Log.d("Email", "Email sent successfully! Server response: " + responseBody);
                         Toast.makeText(getContext(), "Email Sent", Toast.LENGTH_SHORT).show();
                     } else {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
-                        Log.e("Email", "❌ Failed to send email. Server response: " + errorBody);
+                        Log.e("Email", " Failed to send email. Server response: " + errorBody);
                     }
                 } catch (IOException e) {
-                    Log.e("Email", "❌ Failed to read response from server", e);
+                    Log.e("Email", " Failed to read response from server", e);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                Log.e("Email", "❌ Error sending email: " + t.getMessage());
+                Log.e("Email", "Error sending email: " + t.getMessage());
             }
         });
     }
