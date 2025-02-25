@@ -409,17 +409,17 @@ public class new_apointment extends Fragment {
         List<String> dates = new ArrayList<>();
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd/MM/yyyy", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
-        Calendar today = Calendar.getInstance(); // תאריך נוכחי
+
+        calendar.add(Calendar.DAY_OF_YEAR, 1); // מתחיל ממחר
 
         for (int i = 0; i < 14; i++) { // יצירת תאריכים לשבועיים הקרובים
-            if (!calendar.before(today)) { // מציג רק תאריכים שווים או עתידיים
-                dates.add(dateFormat.format(calendar.getTime()));
-            }
+            dates.add(dateFormat.format(calendar.getTime()));
             calendar.add(Calendar.DAY_OF_YEAR, 1); // מעבר ליום הבא
         }
 
         return dates;
     }
+
 
 
     private void updateTimeSlotsForSelectedDate(String selectedDate) {
