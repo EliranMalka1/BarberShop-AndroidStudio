@@ -42,7 +42,7 @@ public class DateAdapter extends RecyclerView.Adapter<DateAdapter.DateViewHolder
         String date = dateList.get(position);
         holder.tvDate.setText(date);
 
-        // Highlight selected item
+
         if (selectedPosition == position) {
             holder.tvDate.setBackgroundResource(R.drawable.rounded_selected_bg);            holder.tvDate.setTextColor(Color.WHITE);
         } else {

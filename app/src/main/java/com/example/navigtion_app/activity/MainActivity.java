@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         String email = ((EditText) findViewById(R.id.Email)).getText().toString().trim();
         String password = ((EditText) findViewById(R.id.password)).getText().toString().trim();
         String phone = ((EditText) findViewById(R.id.phone)).getText().toString().trim();
-        String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString().trim(); // New Full Name field
+        String fullName = ((EditText) findViewById(R.id.fullName)).getText().toString().trim();
         String repass = ((EditText) findViewById(R.id.repass)).getText().toString().trim();
 
         if (email.isEmpty() || password.isEmpty() || phone.isEmpty()|| fullName.isEmpty() || repass.isEmpty()) {
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         String uid = auth.getCurrentUser().getUid();
 
-        // Optionally, update your User object with the uid:
+
         User user = new User(email, phone, fullName,type);
         user.setId(uid);
 
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         String email = ((EditText) findViewById(R.id.BarberEmail)).getText().toString().trim();
         String password = "123456";
         String phone = ((EditText) findViewById(R.id.BarberPhone)).getText().toString().trim();
-        String fullName = ((EditText) findViewById(R.id.BarberName)).getText().toString().trim(); // New Full Name field
+        String fullName = ((EditText) findViewById(R.id.BarberName)).getText().toString().trim();
         String type=((android.widget.Button)findViewById(R.id.hairTypeButton)).getText().toString();
 
         if (email.isEmpty() || phone.isEmpty()|| fullName.isEmpty()||type.isEmpty()) {
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void AddAppointmentWithAutoID(String clientId, String barberId, String date, String time, OnAppointmentCreatedListener listener) {
         DatabaseReference appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
-        String appointmentId = appointmentsRef.push().getKey();  // Generate unique ID
+        String appointmentId = appointmentsRef.push().getKey();
 
         if (appointmentId != null) {
             Appointment appointment = new Appointment(appointmentId, clientId, barberId, date, time);

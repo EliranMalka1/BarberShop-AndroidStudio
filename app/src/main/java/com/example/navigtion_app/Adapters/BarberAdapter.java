@@ -15,7 +15,7 @@ public class BarberAdapter extends RecyclerView.Adapter<BarberAdapter.BarberView
 
     private List<User> barberList;
     private OnBarberClickListener listener;
-    private int selectedPosition = RecyclerView.NO_POSITION; // משתנה לבחירה
+    private int selectedPosition = RecyclerView.NO_POSITION;
 
 
     public interface OnBarberClickListener {
@@ -42,7 +42,7 @@ public class BarberAdapter extends RecyclerView.Adapter<BarberAdapter.BarberView
         holder.tvType.setText(barber.getType());
 
         if (selectedPosition == position) {
-            holder.itemView.setBackgroundResource(R.drawable.rounded_selected_bg); // צבע נבחר (לדוגמה: ורוד)
+            holder.itemView.setBackgroundResource(R.drawable.rounded_selected_bg);
         } else {
             holder.itemView.setBackgroundResource(R.drawable.light_blue_bg);
         }

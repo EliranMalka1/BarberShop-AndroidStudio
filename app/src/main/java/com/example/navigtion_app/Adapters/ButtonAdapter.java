@@ -48,7 +48,7 @@ public class ButtonAdapter extends RecyclerView.Adapter<ButtonAdapter.ViewHolder
         holder.buttonIcon.setImageResource(item.getIconResource());
         holder.cardView.setCardBackgroundColor(item.getBackgroundColor());
 
-        // ניווט ל-Fragment בעת לחיצה
+
         holder.itemView.setOnClickListener(v -> {
             try {
                 NavController navController = Navigation.findNavController((Activity) v.getContext(), R.id.fragmentContainerView);
