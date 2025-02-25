@@ -104,16 +104,17 @@ public class Fragment_profile extends Fragment {
                     final String newPhone = phoneEditText.getText().toString().trim().isEmpty() ? existingUser.getPhone() : phoneEditText.getText().toString().trim();
                     final String newPassword = passwordEditText.getText().toString().trim().isEmpty() ? null : passwordEditText.getText().toString().trim();
                     final String type = existingUser.getType();
+                    final String favorite = existingUser.getFavorite(); // שומר את הערך הנוכחי של הספר המועדף
 
                     boolean emailChanged = !newEmail.equals(existingUser.getEmail());
                     boolean passwordChanged = newPassword != null;
 
                     if (emailChanged || passwordChanged) {
                         showPasswordDialog(password -> {
-                            reauthenticateAndUpdate(firebaseUser, newEmail, newPassword, password, newFullName, newPhone, type, existingUser.getId(), callback);
+                            reauthenticateAndUpdate(firebaseUser, newEmail, newPassword, password, newFullName, newPhone, type, favorite, existingUser.getId(), callback);
                         });
                     } else {
-                        updateDatabase(existingUser.getId(), newEmail, newPhone, newFullName, type, callback);
+                        updateDatabase(existingUser.getId(), newEmail, newPhone, newFullName, type, favorite, callback);
                     }
                 }
             }
@@ -122,6 +123,7 @@ public class Fragment_profile extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
+
 
     private void showPasswordDialog(PasswordCallback callback) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -145,14 +147,16 @@ public class Fragment_profile extends Fragment {
         builder.show();
     }
 
-    private void updateDatabase(String userId, String newEmail, String newPhone, String newFullName, String type, UpdateCallback callback) {
+    private void updateDatabase(String userId, String newEmail, String newPhone, String newFullName, String type, String favorite, UpdateCallback callback) {
         User user = new User(userId, newEmail, newPhone, newFullName, type);
+        user.setFavorite(favorite); // שומר על הערך הקיים של favorite
         userDatabaseRef.setValue(user).addOnCompleteListener(task -> {
             callback.onUpdateResult(task.isSuccessful());
         });
     }
 
-    private void reauthenticateAndUpdate(FirebaseUser user, String newEmail, String newPassword, String password, String newFullName, String newPhone, String type, String userId, UpdateCallback callback) {
+
+    private void reauthenticateAndUpdate(FirebaseUser user, String newEmail, String newPassword, String password, String newFullName, String newPhone, String type, String favorite, String userId, UpdateCallback callback) {
         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), password);
 
         user.reauthenticate(credential).addOnCompleteListener(task -> {
@@ -162,12 +166,13 @@ public class Fragment_profile extends Fragment {
                 }
                 user.updateEmail(newEmail).addOnCompleteListener(emailUpdateTask -> {
                     if (emailUpdateTask.isSuccessful()) {
-                        updateDatabase(userId, newEmail, newPhone, newFullName, type, callback);
+                        updateDatabase(userId, newEmail, newPhone, newFullName, type, favorite, callback);
                     }
                 });
             }
         });
     }
+
 
     private void navigateToMain() {
         if (isAdded() && getView() != null) {
