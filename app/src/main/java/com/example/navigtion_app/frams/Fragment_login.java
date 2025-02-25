@@ -63,9 +63,7 @@ public class Fragment_login extends Fragment {
         return view;
     }
 
-    /**
-     * בודק את סוג המשתמש בבסיס הנתונים ומעביר למסך המתאים
-     */
+
     private void checkUserTypeAndNavigate(String userId, View view) {
         userDatabaseRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
 

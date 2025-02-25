@@ -13,11 +13,7 @@ import android.widget.LinearLayout;
 
 import com.example.navigtion_app.R;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link gender#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class gender extends Fragment {
 
 

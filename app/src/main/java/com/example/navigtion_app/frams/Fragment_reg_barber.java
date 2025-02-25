@@ -30,16 +30,14 @@ public class Fragment_reg_barber extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_reg_barber, container, false);
 
-        // איתור רכיבים מה-XML
         Button register = view.findViewById(R.id.register);
         EditText fullName = view.findViewById(R.id.BarberName);
         EditText email = view.findViewById(R.id.BarberEmail);
         EditText phone = view.findViewById(R.id.BarberPhone);
-        hairTypeButton = view.findViewById(R.id.hairTypeButton); // כפתור בחירת סוג השיער
+        hairTypeButton = view.findViewById(R.id.hairTypeButton);
 
         mAuth = FirebaseAuth.getInstance();
 
-        // מאזין ללחיצה על כפתור בחירת סוג השיער
         hairTypeButton.setOnClickListener(v -> showPopupMenu(v));
 
         register.setOnClickListener(v -> {
@@ -55,7 +53,7 @@ public class Fragment_reg_barber extends Fragment {
                                 user.sendEmailVerification().addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
                                         Toast.makeText(getContext(), "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show();
-                                        mAuth.signOut(); // מנתק את המשתמש עד שיאמת את המייל
+                                        mAuth.signOut();
                                         Navigation.findNavController(view).navigate(R.id.action_fragment_reg_barber_to_managerPage);
                                     } else {
                                         Toast.makeText(getContext(), "Failed to send verification email.", Toast.LENGTH_SHORT).show();
@@ -73,7 +71,6 @@ public class Fragment_reg_barber extends Fragment {
         return view;
     }
 
-    // פונקציה להצגת תפריט נפתח עם שתי האפשרויות
     private void showPopupMenu(View view) {
         PopupMenu popup = new PopupMenu(getContext(), view);
         MenuInflater inflater = popup.getMenuInflater();

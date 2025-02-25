@@ -242,9 +242,7 @@ public class new_apointment extends Fragment {
         return view;
     }
 
-    /**
-     *  פונקציה שמעתיקה טקסט ללוח
-     */
+
     private void copyToClipboard(String label, String text) {
         ClipboardManager clipboard = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(label, text);
@@ -253,9 +251,7 @@ public class new_apointment extends Fragment {
     }
 
 
-    /**
-     *  פונקציה שמוודאת ש- hairType מוגדר במקרה של זרימה רגילה (ללא ספר מועדף)
-     */
+
     private void determineHairTypeFromArguments() {
         if (getArguments() != null) {
             hairType = getArguments().getString("hairType");
