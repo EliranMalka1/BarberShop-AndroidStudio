@@ -2,6 +2,7 @@ package com.example.navigtion_app.frams;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +13,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavBackStackEntry;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,46 +84,22 @@ public class new_apointment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        if (getArguments() != null) {
-            hairType = getArguments().getString("hairType");
-        }
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_apointment, container, false);
         nameText = view.findViewById(R.id.name);
         typeText = view.findViewById(R.id.type);
         phoneText = view.findViewById(R.id.Phone);
         mailText = view.findViewById(R.id.Mail);
         barberNameCircle = view.findViewById(R.id.barberNameCircle);
+        ImageView favoriteImageView = view.findViewById(R.id.imageView6);
 
-        // לאחר איתחול המשתנה phoneText, הוסיפו את הקוד הבא:
-        phoneText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Phone", phoneText.getText().toString());
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(getContext(), "Copied: " + phoneText.getText(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        mailText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ClipboardManager clipboard = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText("Mail", mailText.getText().toString());
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(getContext(), "Copied: " + mailText.getText(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
+        //  החזרת פונקציונליות העתקת מספר טלפון ודוא"ל
+        phoneText.setOnClickListener(v -> copyToClipboard("Phone", phoneText.getText().toString()));
+        mailText.setOnClickListener(v -> copyToClipboard("Mail", mailText.getText().toString()));
 
         ImageView backBtn = view.findViewById(R.id.backBtn);
-        backBtn.setOnClickListener(v ->
-                Navigation.findNavController(v).navigate(R.id.action_new_apointment_to_gender));
+        backBtn.setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_new_apointment_to_gender));
 
-        // הגדרת ה־RecyclerViews ותפריטי הבחירה
         dateRecyclerView = view.findViewById(R.id.DateSelect);
         dateRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -131,7 +111,7 @@ public class new_apointment extends Fragment {
 
         dateAdapter = new DateAdapter(dateList, date -> {
             selectedDate = date;
-            selectedTime = null; // איפוס בחירת השעה
+            selectedTime = null;
             if (timeAdapter != null) {
                 timeAdapter.resetSelection();
             }
@@ -142,47 +122,98 @@ public class new_apointment extends Fragment {
         dateRecyclerView.setAdapter(dateAdapter);
         timeRecyclerView.setAdapter(timeAdapter);
 
-        // כפתור קביעת התור
         bookAppointmentButton = view.findViewById(R.id.button);
         bookAppointmentButton.setOnClickListener(v -> bookAppointment());
 
-        // רשימת הברברים
         barberRecyclerView = view.findViewById(R.id.barberList);
         barberRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
         usersRef = FirebaseDatabase.getInstance().getReference("users");
-        loadBarbers();
-        dateList.addAll(getNextTwoWeeksDates());
-        dateAdapter.notifyDataSetChanged();
 
-        // טיפול ב-favorite - הגדרת האייקון והלוגיקה
-        final ImageView favoriteImageView = view.findViewById(R.id.imageView6);
+        // זיהוי אם המשתמש הגיע מכפתור "My Barber"
+        NavController navController = NavHostFragment.findNavController(this);
+        boolean isFavoriteFlow = false;
+
+        NavBackStackEntry previousBackStackEntry = navController.getPreviousBackStackEntry();
+        if (previousBackStackEntry != null && previousBackStackEntry.getDestination().getId() == R.id.fragment_main) {
+            isFavoriteFlow = true;
+        }
+
         FirebaseAuth auth = FirebaseAuth.getInstance();
         String clientId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
-        if (clientId != null) {
+
+        if (isFavoriteFlow && clientId != null) {
             DatabaseReference clientRef = FirebaseDatabase.getInstance().getReference("users").child(clientId);
-            // קריאת ערך ה-favorite של המשתמש ושמירתו ב-userFavorite
             clientRef.child("favorite").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    userFavorite = snapshot.getValue(String.class);
-                    // עדכון צבע האייקון – אדום רק אם userFavorite קיים ותואם ל-selectedBarberId
-                    updateFavoriteIconColor(favoriteImageView);
+                    String favoriteBarberId = snapshot.getValue(String.class);
+                    if (favoriteBarberId != null) {
+                        Log.d("onCreateView", "Favorite barber found: " + favoriteBarberId);
+                        selectedBarberId = favoriteBarberId;
+
+                        //  שליפת סוג השיער והעדפת המשתמש לסימון הלב
+                        DatabaseReference barberRef = FirebaseDatabase.getInstance().getReference("users").child(favoriteBarberId);
+                        barberRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                User barber = snapshot.getValue(User.class);
+                                if (barber != null) {
+                                    hairType = barber.getType().equals("Long Hair") ? "longHair" : "shortHair";
+                                    Log.d("onCreateView", " Determined hairType from favorite barber: " + hairType);
+                                    userFavorite = favoriteBarberId; // סימון הספר המועדף
+                                    updateFavoriteIconColor(favoriteImageView); // עדכון צבע הלב
+                                } else {
+                                    Log.e("onCreateView", " Could not determine hairType from favorite barber.");
+                                }
+                                loadBarbers(); // טען את רשימת הספרים לאחר קבלת סוג השיער
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.e("onCreateView", " Failed to get hairType: " + error.getMessage());
+                                loadBarbers();
+                            }
+                        });
+                    } else {
+                        Log.d("onCreateView", "No favorite barber found, loading all barbers.");
+                        determineHairTypeFromArguments();
+                    }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    // טיפול בשגיאה במידת הצורך
+                    Log.e("onCreateView", " Failed to get favorite barber: " + error.getMessage());
+                    determineHairTypeFromArguments();
                 }
             });
+        } else {
+            Log.d("onCreateView", "Regular booking flow, no favorite barber");
+            determineHairTypeFromArguments();
+        }
 
-            // לחיצה על האייקון – עדכון שדה favorite למזהה הספר הנבחר
+        dateList.addAll(getNextTwoWeeksDates());
+        dateAdapter.notifyDataSetChanged();
+
+        //  הוספת לחיצה על הלב כדי לשנות ספר מועדף
+        if (clientId != null) {
+            DatabaseReference clientRef = FirebaseDatabase.getInstance().getReference("users").child(clientId);
+            clientRef.child("favorite").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    userFavorite = snapshot.getValue(String.class);
+                    updateFavoriteIconColor(favoriteImageView);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
+
             favoriteImageView.setOnClickListener(v -> {
                 if (selectedBarberId == null) {
                     Toast.makeText(getContext(), "Please select a barber first.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // אם ה-favorite הנוכחי שווה ל-selectedBarberId, נעדכן ל-null
                 if (selectedBarberId.equals(userFavorite)) {
                     clientRef.child("favorite").setValue(null)
                             .addOnCompleteListener(task -> {
@@ -195,7 +226,6 @@ public class new_apointment extends Fragment {
                                 }
                             });
                 } else {
-                    // אחרת, נעדכן את ה-favorite למזהה הספר הנבחר
                     clientRef.child("favorite").setValue(selectedBarberId)
                             .addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
@@ -208,11 +238,40 @@ public class new_apointment extends Fragment {
                             });
                 }
             });
-
-
         }
+
         return view;
     }
+
+    /**
+     *  פונקציה שמעתיקה טקסט ללוח
+     */
+    private void copyToClipboard(String label, String text) {
+        ClipboardManager clipboard = (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(label, text);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(getContext(), "Copied: " + text, Toast.LENGTH_SHORT).show();
+    }
+
+
+    /**
+     *  פונקציה שמוודאת ש- hairType מוגדר במקרה של זרימה רגילה (ללא ספר מועדף)
+     */
+    private void determineHairTypeFromArguments() {
+        if (getArguments() != null) {
+            hairType = getArguments().getString("hairType");
+        }
+
+        if (hairType == null) {
+            Log.e("determineHairType", "⚠ hairType is null, setting default value.");
+            hairType = "longHair"; //  אפשר להגדיר כ-"shortHair" אם זו ברירת המחדל הרצויה
+        }
+
+        Log.d("determineHairType", "✅ Final hairType: " + hairType);
+        loadBarbers();
+    }
+
+
 
     // פונקציה לעדכון צבע האייקון בהתאם לערך userFavorite ול-selectedBarberId
     private void updateFavoriteIconColor(ImageView favoriteImageView) {
@@ -226,66 +285,112 @@ public class new_apointment extends Fragment {
     private void loadBarbers() {
         barberList = new ArrayList<>();
 
+        Log.d("loadBarbers", "Expected hairType from arguments: " + hairType); // נבדוק מה מתקבל ב- hairType
+
         usersRef.orderByChild("type").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d("loadBarbers", "Loading barbers from Firebase...");
                 barberList.clear();
+                User favoriteBarber = null;
+                int favoritePosition = -1;
+
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
                     if (user != null) {
-                        if ("longHair".equals(hairType) && "Long Hair".equals(user.getType())) {
-                            barberList.add(user);
-                        } else if ("shortHair".equals(hairType) && "Short Hair".equals(user.getType())) {
-                            barberList.add(user);
+                        Log.d("loadBarbers", "Loaded Barber: " + user.getFullName() + " | ID: " + user.getId() + " | Type: " + user.getType());
+
+                        //  **תיקון השוואת סוג השיער - נבדוק בדיוק מה יש בתוך hairType**
+                        boolean isValidBarber = false;
+
+                        if ("Long Hair".equals(user.getType()) && "longHair".equalsIgnoreCase(hairType)) {
+                            isValidBarber = true;
+                        } else if ("Short Hair".equals(user.getType()) && "shortHair".equalsIgnoreCase(hairType)) {
+                            isValidBarber = true;
+                        }
+
+                        if (isValidBarber) {
+                            Log.d("loadBarbers", " Barber " + user.getFullName() + " matches the filter.");
+                            barberList.add(user); // הוספה רק אם הספר מתאים לסינון
+
+                            // אם זה הספר המועדף, שמור את המיקום שלו
+                            if (selectedBarberId != null && selectedBarberId.equals(user.getId())) {
+                                Log.d("loadBarbers", " Found favorite barber in list: " + user.getFullName());
+                                favoriteBarber = user;
+                                favoritePosition = barberList.size() - 1; // שמירה על האינדקס
+                            }
                         }
                     }
                 }
 
-                // Set adapter after fetching data
+                // אם הרשימה ריקה, נציג הודעה
+                if (barberList.isEmpty()) {
+                    Log.e("loadBarbers", " No barbers found matching the filter!");
+                    Toast.makeText(getContext(), "No available barbers for this hair type.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // יצירת מתאם ועדכון ה- RecyclerView
                 barberAdapter = new BarberAdapter(barberList, barber -> {
                     selectedBarberId = barber.getId();
-                    // עדכון פרטי הספר
-                    nameText.setText(barber.getFullName());
-                    typeText.setText(barber.getType());
-                    phoneText.setText(barber.getPhone());
-                    mailText.setText(barber.getEmail());
-                    barberNameCircle.setText(barber.getFullName());
-
-                    if (selectedBarberId != null) {
-                        Toast.makeText(getContext(), "Selected: " + barber.getFullName(), Toast.LENGTH_SHORT).show();
-                        resetDateAndTimeSelection();
-                        fetchAppointmentsForSelectedBarber(selectedBarberId);
-                        // עדכון צבע האייקון בהתאם – אם הספר הנבחר תואם ל-favorite
-                        updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
-                    } else {
-                        Toast.makeText(getContext(), "Failed to get Barber ID.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                barberRecyclerView.setAdapter(barberAdapter);
-
-                // אם הרשימה לא ריקה, בחר אוטומטית את הברבר הראשון
-                if (!barberList.isEmpty()) {
-                    selectedBarberId = barberList.get(0).getId();
-                    nameText.setText(barberList.get(0).getFullName());
-                    typeText.setText(barberList.get(0).getType());
-                    phoneText.setText(barberList.get(0).getPhone());
-                    mailText.setText(barberList.get(0).getEmail());
-                    barberNameCircle.setText(barberList.get(0).getFullName());
-
-                    Toast.makeText(getContext(), "Selected: " + barberList.get(0).getFullName(), Toast.LENGTH_SHORT).show();
-                    barberAdapter.setSelectedPosition(0);
+                    updateUIForSelectedBarber(barber);
                     resetDateAndTimeSelection();
                     fetchAppointmentsForSelectedBarber(selectedBarberId);
-                    updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
+                });
+
+                barberRecyclerView.setAdapter(barberAdapter);
+
+                // סימון הספר המועדף אם קיים
+                if (favoriteBarber != null && favoritePosition != -1) {
+                    Log.d("loadBarbers", " Favorite barber selected: " + favoriteBarber.getFullName());
+                    updateUIForSelectedBarber(favoriteBarber);
+                    barberAdapter.setSelectedPosition(favoritePosition);
+                    fetchAppointmentsForSelectedBarber(favoriteBarber.getId());
+                } else {
+                    Log.d("loadBarbers", "ℹ No favorite barber found, selecting first in list.");
+                    selectDefaultBarber(); // בחירת הספר הראשון כברירת מחדל
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("loadBarbers", " Error loading barbers: " + error.getMessage());
                 Toast.makeText(getContext(), "Failed to load barbers.", Toast.LENGTH_SHORT).show();
             }
         });
     }
+
+
+
+
+
+
+    // פונקציה לעדכון ממשק המשתמש בהתאם לספר שנבחר
+    private void updateUIForSelectedBarber(User barber) {
+        selectedBarberId = barber.getId();
+        nameText.setText(barber.getFullName());
+        typeText.setText(barber.getType());
+        phoneText.setText(barber.getPhone());
+        mailText.setText(barber.getEmail());
+        barberNameCircle.setText(barber.getFullName());
+
+        Toast.makeText(getContext(), "Selected: " + barber.getFullName(), Toast.LENGTH_SHORT).show();
+        updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
+    }
+
+    // פונקציה לבחירת הספר הראשון ברשימה אם אין ספר מועדף
+    private void selectDefaultBarber() {
+        if (!barberList.isEmpty()) {
+            User defaultBarber = barberList.get(0);
+            updateUIForSelectedBarber(defaultBarber);
+            barberAdapter.setSelectedPosition(0);
+            fetchAppointmentsForSelectedBarber(defaultBarber.getId());
+        }
+    }
+
+
+
+
 
     private void resetDateAndTimeSelection() {
         selectedDate = null;
