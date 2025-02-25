@@ -62,7 +62,7 @@ public class Fragment_main extends Fragment {
     private FirebaseAuth auth;
 
     public Fragment_main() {
-        // Required empty public constructor
+
     }
 
     @Override
@@ -74,7 +74,7 @@ public class Fragment_main extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize Firebase Auth and Database
+
         auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
 
@@ -92,7 +92,7 @@ public class Fragment_main extends Fragment {
             loadUserData(view);
         }
 
-        // Set up RecyclerView
+
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
 
@@ -128,12 +128,12 @@ public class Fragment_main extends Fragment {
                 return;
             }
 
-            // הצגת הודעת אישור למשתמש
+
             new AlertDialog.Builder(getContext())
                     .setTitle("Cancel Appointment")
                     .setMessage("Are you sure you want to cancel this appointment?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        // המשתמש אישר - שליחת מייל ומחיקת הפגישה
+
                         cancelAppointment(tvOtherUserEmail.getText().toString().trim(),tvCustomerName.getText().toString(),tvAppointmentDate.getText().toString(),
                                 tvAppointmentTime.getText().toString(),userNameTextView.getText().toString());
                     })
@@ -148,7 +148,7 @@ public class Fragment_main extends Fragment {
     }
 
     private void cancelAppointment(String customerEmail,String customerName,String appointmentDate,String appointmentTime,String senderName) {
-        // ניקוי הנתונים לפני השימוש
+
         customerEmail = tvOtherUserEmail.getText().toString().replace("Email: ", "").trim();
         customerName = tvCustomerName.getText().toString().replace("With: ","");
         appointmentDate = tvAppointmentDate.getText().toString().replace("Date: ","");
@@ -161,7 +161,7 @@ public class Fragment_main extends Fragment {
             return;
         }
 
-        // ניצור את נושא ותוכן האימייל
+
         String subject = "Appointment Cancellation Notice";
         String body = "Dear " + customerName + ",\n\n"
                 + "I regret to inform you that our appointment on "
@@ -174,13 +174,13 @@ public class Fragment_main extends Fragment {
         Log.d("Email", "📧 Subject: " + subject);
         Log.d("Email", "📧 Body: " + body);
 
-        // יצירת JSON עם הנתונים לשליחה
+
         Map<String, String> emailRequest = new HashMap<>();
         emailRequest.put("email", customerEmail);
         emailRequest.put("subject", subject);
         emailRequest.put("body", body);
 
-        // שליחת הבקשה ל-Google Apps Script
+
         ApiService apiService = new Retrofit.Builder()
                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -223,17 +223,17 @@ public class Fragment_main extends Fragment {
                     Appointment appointment = appointmentSnapshot.getValue(Appointment.class);
                     if (appointment == null) continue;
 
-                    // בדיקה אם הפגישה הנוכחית תואמת לפגישה שצריך למחוק
+
                     if (tvAppointmentDate.getText().toString().contains(appointment.getDate()) &&
                             tvAppointmentTime.getText().toString().contains(appointment.getTime())) {
 
-                        // מחיקת הפגישה מה-Firebase
+
                         appointmentSnapshot.getRef().removeValue()
                                 .addOnSuccessListener(aVoid -> {
                                     Log.d("Firebase", "Appointment deleted successfully!");
                                     Toast.makeText(getContext(), "Appointment canceled.", Toast.LENGTH_SHORT).show();
 
-                                    // קריאה לפונקציה שמאתרת את הפגישה הקרובה הבאה
+
                                     FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                                     if (currentUser != null) {
                                         loadNextAppointmentForUser(currentUser.getUid());
@@ -244,7 +244,7 @@ public class Fragment_main extends Fragment {
                                     Toast.makeText(getContext(), "Failed to cancel appointment.", Toast.LENGTH_SHORT).show();
                                 });
 
-                        break; // יוצאים מהלולאה לאחר שמצאנו ומחקנו את הפגישה
+                        break;
                     }
                 }
             }
@@ -284,18 +284,18 @@ public class Fragment_main extends Fragment {
         Log.d("Email", "Subject: " + subject);
         Log.d("Email", "Body: " + body);
 
-        // יצירת JSON עם הנתונים לשליחה
+
         Map<String, String> emailRequest = new HashMap<>();
         emailRequest.put("email", customerEmail);
         emailRequest.put("subject", subject);
         emailRequest.put("body", body);
 
-        // הדפסת JSON ללוג כדי לוודא שהנתונים נכונים
+
         Gson gson = new Gson();
         String jsonRequest = gson.toJson(emailRequest);
         Log.d("Email", "JSON Sent to Server: " + jsonRequest);
 
-        // שליחת הבקשה ל-Google Apps Script
+
         ApiService apiService = new Retrofit.Builder()
                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -338,9 +338,9 @@ public class Fragment_main extends Fragment {
                     User user = snapshot.getValue(User.class);
                     if (user != null) {
                         userNameTextView.setText(String.format("Hello %s", user.getFullName()));
-                        // מעבירים גם את הערך של favorite מהאובייקט user
+
                         populateButtons(user.getType(), view, user.getFavorite());
-                        // חיפוש הפגישה הקרובה ביותר עבור המשתמש
+
                         loadNextAppointmentForUser(user.getId());
                     }
                 }
