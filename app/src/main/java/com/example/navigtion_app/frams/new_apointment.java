@@ -67,11 +67,10 @@ public class new_apointment extends Fragment {
     private TextView barberNameCircle;
     private List<Appointment> appointmentsList = new ArrayList<>();
 
-    // נשמור את הערך הנוכחי של ה-favorite של המשתמש
     private String userFavorite = null;
 
     public new_apointment() {
-        // Required empty public constructor
+
     }
 
     public static new_apointment newInstance(String param1, String param2) {
@@ -93,7 +92,7 @@ public class new_apointment extends Fragment {
         barberNameCircle = view.findViewById(R.id.barberNameCircle);
         ImageView favoriteImageView = view.findViewById(R.id.imageView6);
 
-        //  החזרת פונקציונליות העתקת מספר טלפון ודוא"ל
+
         phoneText.setOnClickListener(v -> copyToClipboard("Phone", phoneText.getText().toString()));
         mailText.setOnClickListener(v -> copyToClipboard("Mail", mailText.getText().toString()));
 
@@ -130,7 +129,7 @@ public class new_apointment extends Fragment {
 
         usersRef = FirebaseDatabase.getInstance().getReference("users");
 
-        // זיהוי אם המשתמש הגיע מכפתור "My Barber"
+
         NavController navController = NavHostFragment.findNavController(this);
         boolean isFavoriteFlow = false;
 
@@ -152,7 +151,7 @@ public class new_apointment extends Fragment {
                         Log.d("onCreateView", "Favorite barber found: " + favoriteBarberId);
                         selectedBarberId = favoriteBarberId;
 
-                        //  שליפת סוג השיער והעדפת המשתמש לסימון הלב
+
                         DatabaseReference barberRef = FirebaseDatabase.getInstance().getReference("users").child(favoriteBarberId);
                         barberRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -161,12 +160,12 @@ public class new_apointment extends Fragment {
                                 if (barber != null) {
                                     hairType = barber.getType().equals("Long Hair") ? "longHair" : "shortHair";
                                     Log.d("onCreateView", " Determined hairType from favorite barber: " + hairType);
-                                    userFavorite = favoriteBarberId; // סימון הספר המועדף
-                                    updateFavoriteIconColor(favoriteImageView); // עדכון צבע הלב
+                                    userFavorite = favoriteBarberId;
+                                    updateFavoriteIconColor(favoriteImageView);
                                 } else {
                                     Log.e("onCreateView", " Could not determine hairType from favorite barber.");
                                 }
-                                loadBarbers(); // טען את רשימת הספרים לאחר קבלת סוג השיער
+                                loadBarbers();
                             }
 
                             @Override
@@ -195,7 +194,7 @@ public class new_apointment extends Fragment {
         dateList.addAll(getNextTwoWeeksDates());
         dateAdapter.notifyDataSetChanged();
 
-        //  הוספת לחיצה על הלב כדי לשנות ספר מועדף
+
         if (clientId != null) {
             DatabaseReference clientRef = FirebaseDatabase.getInstance().getReference("users").child(clientId);
             clientRef.child("favorite").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -264,7 +263,7 @@ public class new_apointment extends Fragment {
 
         if (hairType == null) {
             Log.e("determineHairType", "⚠ hairType is null, setting default value.");
-            hairType = "longHair"; //  אפשר להגדיר כ-"shortHair" אם זו ברירת המחדל הרצויה
+            hairType = "longHair";
         }
 
         Log.d("determineHairType", "✅ Final hairType: " + hairType);
@@ -273,7 +272,7 @@ public class new_apointment extends Fragment {
 
 
 
-    // פונקציה לעדכון צבע האייקון בהתאם לערך userFavorite ול-selectedBarberId
+
     private void updateFavoriteIconColor(ImageView favoriteImageView) {
         if (userFavorite != null && selectedBarberId != null && userFavorite.equals(selectedBarberId)) {
             favoriteImageView.setColorFilter(getResources().getColor(android.R.color.holo_red_dark));
@@ -285,7 +284,7 @@ public class new_apointment extends Fragment {
     private void loadBarbers() {
         barberList = new ArrayList<>();
 
-        Log.d("loadBarbers", "Expected hairType from arguments: " + hairType); // נבדוק מה מתקבל ב- hairType
+        Log.d("loadBarbers", "Expected hairType from arguments: " + hairType);
 
         usersRef.orderByChild("type").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -300,7 +299,7 @@ public class new_apointment extends Fragment {
                     if (user != null) {
                         Log.d("loadBarbers", "Loaded Barber: " + user.getFullName() + " | ID: " + user.getId() + " | Type: " + user.getType());
 
-                        //  **תיקון השוואת סוג השיער - נבדוק בדיוק מה יש בתוך hairType**
+
                         boolean isValidBarber = false;
 
                         if ("Long Hair".equals(user.getType()) && "longHair".equalsIgnoreCase(hairType)) {
@@ -311,26 +310,26 @@ public class new_apointment extends Fragment {
 
                         if (isValidBarber) {
                             Log.d("loadBarbers", " Barber " + user.getFullName() + " matches the filter.");
-                            barberList.add(user); // הוספה רק אם הספר מתאים לסינון
+                            barberList.add(user);
 
-                            // אם זה הספר המועדף, שמור את המיקום שלו
+
                             if (selectedBarberId != null && selectedBarberId.equals(user.getId())) {
                                 Log.d("loadBarbers", " Found favorite barber in list: " + user.getFullName());
                                 favoriteBarber = user;
-                                favoritePosition = barberList.size() - 1; // שמירה על האינדקס
+                                favoritePosition = barberList.size() - 1;
                             }
                         }
                     }
                 }
 
-                // אם הרשימה ריקה, נציג הודעה
+
                 if (barberList.isEmpty()) {
                     Log.e("loadBarbers", " No barbers found matching the filter!");
                     Toast.makeText(getContext(), "No available barbers for this hair type.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // יצירת מתאם ועדכון ה- RecyclerView
+
                 barberAdapter = new BarberAdapter(barberList, barber -> {
                     selectedBarberId = barber.getId();
                     updateUIForSelectedBarber(barber);
@@ -340,7 +339,7 @@ public class new_apointment extends Fragment {
 
                 barberRecyclerView.setAdapter(barberAdapter);
 
-                // סימון הספר המועדף אם קיים
+
                 if (favoriteBarber != null && favoritePosition != -1) {
                     Log.d("loadBarbers", " Favorite barber selected: " + favoriteBarber.getFullName());
                     updateUIForSelectedBarber(favoriteBarber);
@@ -348,7 +347,7 @@ public class new_apointment extends Fragment {
                     fetchAppointmentsForSelectedBarber(favoriteBarber.getId());
                 } else {
                     Log.d("loadBarbers", "ℹ No favorite barber found, selecting first in list.");
-                    selectDefaultBarber(); // בחירת הספר הראשון כברירת מחדל
+                    selectDefaultBarber();
                 }
             }
 
@@ -365,7 +364,7 @@ public class new_apointment extends Fragment {
 
 
 
-    // פונקציה לעדכון ממשק המשתמש בהתאם לספר שנבחר
+
     private void updateUIForSelectedBarber(User barber) {
         selectedBarberId = barber.getId();
         nameText.setText(barber.getFullName());
@@ -378,7 +377,7 @@ public class new_apointment extends Fragment {
         updateFavoriteIconColor(getView().findViewById(R.id.imageView6));
     }
 
-    // פונקציה לבחירת הספר הראשון ברשימה אם אין ספר מועדף
+
     private void selectDefaultBarber() {
         if (!barberList.isEmpty()) {
             User defaultBarber = barberList.get(0);
@@ -410,11 +409,11 @@ public class new_apointment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE dd/MM/yyyy", Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.DAY_OF_YEAR, 1); // מתחיל ממחר
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
 
-        for (int i = 0; i < 14; i++) { // יצירת תאריכים לשבועיים הקרובים
+        for (int i = 0; i < 14; i++) {
             dates.add(dateFormat.format(calendar.getTime()));
-            calendar.add(Calendar.DAY_OF_YEAR, 1); // מעבר ליום הבא
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
 
         return dates;
@@ -424,7 +423,7 @@ public class new_apointment extends Fragment {
 
     private void updateTimeSlotsForSelectedDate(String selectedDate) {
         if (selectedDate == null) return;
-        // נרמל את התאריך (מסיר "\n" ומרווחים מיותרים)
+
         String normalizedDate = selectedDate.replace("\n", " ").trim();
         timeList.clear();
         timeList.addAll(generateTimeSlots(normalizedDate));
