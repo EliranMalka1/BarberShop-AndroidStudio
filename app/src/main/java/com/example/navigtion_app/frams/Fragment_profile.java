@@ -104,7 +104,7 @@ public class Fragment_profile extends Fragment {
                     final String newPhone = phoneEditText.getText().toString().trim().isEmpty() ? existingUser.getPhone() : phoneEditText.getText().toString().trim();
                     final String newPassword = passwordEditText.getText().toString().trim().isEmpty() ? null : passwordEditText.getText().toString().trim();
                     final String type = existingUser.getType();
-                    final String favorite = existingUser.getFavorite(); // שומר את הערך הנוכחי של הספר המועדף
+                    final String favorite = existingUser.getFavorite();
 
                     boolean emailChanged = !newEmail.equals(existingUser.getEmail());
                     boolean passwordChanged = newPassword != null;
@@ -149,7 +149,7 @@ public class Fragment_profile extends Fragment {
 
     private void updateDatabase(String userId, String newEmail, String newPhone, String newFullName, String type, String favorite, UpdateCallback callback) {
         User user = new User(userId, newEmail, newPhone, newFullName, type);
-        user.setFavorite(favorite); // שומר על הערך הקיים של favorite
+        user.setFavorite(favorite);
         userDatabaseRef.setValue(user).addOnCompleteListener(task -> {
             callback.onUpdateResult(task.isSuccessful());
         });

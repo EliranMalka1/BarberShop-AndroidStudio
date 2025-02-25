@@ -9,7 +9,6 @@
     android:background="@drawable/card_background"
     android:elevation="6dp">
 
-    <!-- שם הספר -->
     <TextView
         android:id="@+id/tvName"
         android:layout_width="match_parent"
@@ -20,7 +19,6 @@
         android:textColor="@android:color/black"
         android:paddingBottom="4dp"/>
 
-    <!-- אימייל -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -37,7 +35,6 @@
         android:textColor="@android:color/black"
         android:paddingBottom="8dp"/>
 
-    <!-- טלפון -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -54,7 +51,6 @@
         android:textColor="@android:color/black"
         android:paddingBottom="8dp"/>
 
-    <!-- סוג תספורת -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,7 +67,6 @@
         android:textColor="@android:color/black"
         android:paddingBottom="12dp"/>
 
-    <!-- כפתור מחיקה מעוצב -->
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="match_parent"

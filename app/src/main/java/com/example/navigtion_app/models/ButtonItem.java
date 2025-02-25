@@ -4,7 +4,7 @@ public class ButtonItem {
     private String buttonText;
     private int iconResource;
     private int backgroundColor;
-    private int navigationActionId; // שמירת ID של הניווט
+    private int navigationActionId;
 
     public ButtonItem(String buttonText, int iconResource, int backgroundColor, int navigationActionId) {
         this.buttonText = buttonText;

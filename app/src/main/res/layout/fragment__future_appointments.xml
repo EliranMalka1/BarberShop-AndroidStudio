@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- הודעה אם אין פגישות עתידיות -->
     <TextView
         android:id="@+id/tvNoFutureAppointments"
         android:layout_width="match_parent"
@@ -15,7 +14,6 @@
         android:visibility="gone"
         android:layout_marginTop="20dp" />
 
-    <!-- רשימת הפגישות העתידיות -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewFutureAppointments"
         android:layout_width="match_parent"

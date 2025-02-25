@@ -2,7 +2,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- הודעה אם אין פגישות עבר -->
     <TextView
         android:id="@+id/tvNoPastAppointments"
         android:layout_width="match_parent"
@@ -14,7 +13,6 @@
         android:visibility="gone"
         android:layout_marginTop="20dp" />
 
-    <!-- רשימת הפגישות -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPastAppointments"
         android:layout_width="match_parent"

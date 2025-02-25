@@ -11,12 +11,10 @@ public class User {
 
     private String favorite;
 
-    // Default constructor required for Firebase deserialization
     public User() {
     }
 
     public User(String email, String phone, String fullName) {
-        // Generate a unique ID using UUID
         this.id = UUID.randomUUID().toString();
         this.email = email;
         this.phone = phone;
@@ -36,7 +34,7 @@ public class User {
     }
 
     public User(String id, String email, String phone, String fullName, String type) {
-        this.id = id; // לשמור את ה-ID הקיים במקום ליצור חדש
+        this.id = id;
         this.email = email;
         this.phone = phone;
         this.fullName = fullName;
@@ -44,7 +42,6 @@ public class User {
         this.favorite = null;
     }
 
-    // Getter and setter for id
     public String getId() {
         return id;
     }
@@ -52,7 +49,6 @@ public class User {
         this.id = id;
     }
 
-    // Getter and setter for email
     public String getEmail() {
         return email;
     }
@@ -60,7 +56,6 @@ public class User {
         this.email = email;
     }
 
-    // Getter and setter for phone
     public String getPhone() {
         return phone;
     }
@@ -68,7 +63,6 @@ public class User {
         this.phone = phone;
     }
 
-    // Getter and setter for fullName
     public String getFullName() {
         return this.fullName;
     }

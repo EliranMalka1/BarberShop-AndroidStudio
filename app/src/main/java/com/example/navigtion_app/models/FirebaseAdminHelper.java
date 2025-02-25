@@ -23,12 +23,11 @@ public class FirebaseAdminHelper {
         void onTokenReady(String token);
     }
 
-    // בנאי פרטי למניעת יצירת מופעים נוספים (Singleton)
+
     private FirebaseAdminHelper(Context context) {
         this.context = context.getApplicationContext();
     }
 
-    // יצירת אינסטנס יחיד של המחלקה (Singleton)
     public static synchronized FirebaseAdminHelper getInstance(Context context) {
         if (instance == null) {
             instance = new FirebaseAdminHelper(context);
@@ -36,7 +35,6 @@ public class FirebaseAdminHelper {
         return instance;
     }
 
-    // קבלת טוקן, תוך בדיקה אם צריך לרענן
     public void getAdminToken(TokenCallback callback) {
         if (token == null || System.currentTimeMillis() > tokenExpirationTime) {
             refreshToken(callback);
@@ -47,33 +45,29 @@ public class FirebaseAdminHelper {
         }
     }
 
-    // רענון הטוקן אם פג תוקפו
     private void refreshToken(TokenCallback callback) {
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
-                // בדיקה אם הקובץ קיים
                 InputStream serviceAccount = context.getAssets().open("app-data-bd40e-fa6a131bca88.json");
 
                 GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount)
-                        .createScoped(Collections.singletonList("https://www.googleapis.com/auth/identitytoolkit")); // ✅ שונה ל-Scope הנכון
+                        .createScoped(Collections.singletonList("https://www.googleapis.com/auth/identitytoolkit"));
 
                 credentials.refreshIfExpired();
                 token = credentials.getAccessToken();
 
                 if (token == null) {
-                    Log.e("FirebaseAdminHelper", "🚨 Failed to obtain access token.");
+                    Log.e("FirebaseAdminHelper", "Failed to obtain access token.");
                     callback.onTokenReady(null);
                     return;
                 }
 
-                // ✅ הדפסת ה-Admin Token כדי לוודא שהוא מופק
-                Log.d("FirebaseAdminHelper", "✅ Generated Admin Token: " + token.getTokenValue());
+                Log.d("FirebaseAdminHelper", "Generated Admin Token: " + token.getTokenValue());
 
-                // שליחת ה-Token חזרה לקריאה
                 callback.onTokenReady(token.getTokenValue());
 
             } catch (IOException e) {
-                Log.e("FirebaseAdminHelper", "🚨 Service account JSON file not found!", e);
+                Log.e("FirebaseAdminHelper", "Service account JSON file not found!", e);
                 callback.onTokenReady(null);
             }
         });

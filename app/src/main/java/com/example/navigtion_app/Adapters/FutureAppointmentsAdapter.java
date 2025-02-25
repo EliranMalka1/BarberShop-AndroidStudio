@@ -45,13 +45,13 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         this.appointmentsRef = appointmentsRef;
         this.context = context;
 
-        // ✅ מיון הפגישות מהקרוב ביותר לרחוק ביותר
+
         Collections.sort(this.futureAppointments, (a1, a2) -> {
             try {
                 SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm", Locale.getDefault());
                 Date date1 = sdf.parse(a1.getDate() + " " + a1.getTime());
                 Date date2 = sdf.parse(a2.getDate() + " " + a2.getTime());
-                return date1.compareTo(date2); // מיון מהקרוב לרחוק
+                return date1.compareTo(date2);
             } catch (ParseException e) {
                 return 0;
             }
@@ -71,16 +71,16 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         holder.tvDate.setText("Date: " + appointment.getDate());
         holder.tvTime.setText("Time: " + appointment.getTime());
 
-        // 🔥 זיהוי המשתמש השני בפגישה
+
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         String otherUserId = appointment.getClientId().equals(currentUserId) ? appointment.getBarberId() : appointment.getClientId();
 
-        // 🔥 הצגת טקסט זמני עד שהנתונים נטענים
+
         holder.tvWith.setText("With: Loading...");
         holder.tvPhone.setText("Phone: Loading...");
         holder.tvEmail.setText("Email: Loading...");
 
-        // 🔥 שליפת הנתונים של המשתמש השני מ-Firebase
+
         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users").child(otherUserId);
         usersRef.get().addOnSuccessListener(snapshot -> {
             if (snapshot.exists()) {
@@ -90,13 +90,13 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
             }
         });
 
-        // 🔥 כפתור ביטול פגישה
+
         holder.btnCancel.setOnClickListener(v -> {
             new AlertDialog.Builder(context)
                     .setTitle("Cancel Appointment")
                     .setMessage("Are you sure you want to cancel this appointment?")
                     .setPositiveButton("Yes", (dialog, which) -> {
-                        // 🔥 מחיקת הפגישה מה-Firebase
+
                         appointmentsRef.child(appointment.getAppointmentId()).removeValue()
                                 .addOnSuccessListener(aVoid -> {
                                     futureAppointments.remove(position);
@@ -104,7 +104,7 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
                                     notifyItemRangeChanged(position, futureAppointments.size());
                                     Toast.makeText(context, "Appointment canceled", Toast.LENGTH_SHORT).show();
 
-                                    // 🔥 שליחת מייל ביטול למשתמש השני
+
                                     sendCancellationEmail(
                                             holder.tvEmail.getText().toString(),
                                             holder.tvWith.getText().toString(),
@@ -167,7 +167,7 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         Log.d("Email", "📧 Subject: " + subject);
         Log.d("Email", "📧 Body: " + body);
 
-        // 🔥 JSON לשליחה
+
         Map<String, String> emailRequest = new HashMap<>();
         emailRequest.put("email", customerEmail);
         emailRequest.put("subject", subject);
@@ -177,7 +177,7 @@ public class FutureAppointmentsAdapter extends RecyclerView.Adapter<FutureAppoin
         String jsonRequest = gson.toJson(emailRequest);
         Log.d("Email", "📨 JSON Sent to Server: " + jsonRequest);
 
-        // 🔥 שליחת בקשה ל-Google Apps Script
+
         ApiService apiService = new Retrofit.Builder()
                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
                 .addConverterFactory(GsonConverterFactory.create())

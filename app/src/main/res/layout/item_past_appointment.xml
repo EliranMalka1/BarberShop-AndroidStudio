@@ -13,7 +13,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- תאריך ושעה -->
         <TextView
             android:id="@+id/tvPastAppointmentDate"
             android:layout_width="wrap_content"
@@ -33,14 +32,12 @@
             android:textSize="16sp"
             android:paddingBottom="8dp" />
 
-        <!-- קו מפריד דק -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@android:color/darker_gray"
             android:layout_marginBottom="8dp"/>
 
-        <!-- משתתף בפגישה -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

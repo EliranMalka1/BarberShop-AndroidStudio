@@ -37,7 +37,7 @@ public class TimeAdapter extends RecyclerView.Adapter<TimeAdapter.TimeViewHolder
         String time = timeList.get(position);
         holder.tvTime.setText(time);
 
-        // Highlight selected item
+
         if (selectedPosition == position) {
             holder.tvTime.setBackgroundResource(R.drawable.rounded_selected_bg);
             holder.tvTime.setTextColor(Color.WHITE);

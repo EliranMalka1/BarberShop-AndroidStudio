@@ -22,7 +22,7 @@ public class Fragment_reg_barber extends Fragment {
 
     private FirebaseAuth mAuth;
     private Button hairTypeButton;
-    private String selectedHairType = ""; // משתנה לשמירת הבחירה של המשתמש
+    private String selectedHairType = "";
 
     public Fragment_reg_barber() {}
 

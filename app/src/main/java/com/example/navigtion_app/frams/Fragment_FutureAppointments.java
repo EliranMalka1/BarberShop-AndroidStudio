@@ -42,7 +42,6 @@ public class Fragment_FutureAppointments extends Fragment {
     private DatabaseReference appointmentsRef;
 
     public Fragment_FutureAppointments() {
-        // קונסטרקטור ריק נדרש על ידי Fragment
     }
 
     @Override
@@ -88,12 +87,11 @@ public class Fragment_FutureAppointments extends Fragment {
                     try {
                         Date appointmentDate = sdf.parse(appointment.getDate() + " " + appointment.getTime());
 
-                        // ✅ רק אם הפגישה בעתיד - נוסיף אותה לרשימה
                         if (appointmentDate != null && appointmentDate.after(new Date())) {
                             futureAppointmentsList.add(appointment);
                         }
                     } catch (ParseException e) {
-                        Log.e("FirebaseData", "❌ Error parsing date", e);
+                        Log.e("FirebaseData", "Error parsing date", e);
                     }
                 }
 

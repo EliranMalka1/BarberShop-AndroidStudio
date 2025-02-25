@@ -196,7 +196,7 @@ public class Fragment_main extends Fragment {
                     String responseBody = response.body() != null ? response.body().string() : "No response";
                     if (response.isSuccessful()) {
                         Log.d("Email", " Email sent successfully! Server response: " + responseBody);
-                        deleteAppointmentFromDatabase(); // לאחר שליחת האימייל - מחיקת הפגישה מה-Firebase
+                        deleteAppointmentFromDatabase();
                     } else {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
                         Log.e("Email", " Failed to send email. Server response: " + errorBody);
@@ -395,7 +395,7 @@ public class Fragment_main extends Fragment {
                     Log.d("FirebaseData", "Checking appointment: " + appointment.getDate() + " " + appointment.getTime());
 
                     Date appointmentDate = appointment.getFormattedDateTime();
-                    if (appointmentDate != null && appointmentDate.after(new Date())) { // **בודק רק תאריכים עתידיים**
+                    if (appointmentDate != null && appointmentDate.after(new Date())) {
                         if (closestDate == null || appointmentDate.before(closestDate)) {
                             closestDate = appointmentDate;
                             closestTime = appointment.getTime();

@@ -38,22 +38,18 @@ public class Appointment {
     public String getTime() { return time; }
     public void setTime(String time) { this.time = cleanTime(time); }
 
-    /**
-     * מסיר רווחים מיותרים ושורות חדשות כדי לוודא שהתאריך בפורמט תקין
-     */
+
     private String cleanDate(String date) {
         if (date == null) return "";
-        return date.replaceAll("\n", " ").trim(); // מסיר שורות חדשות ומרווחים
+        return date.replaceAll("\n", " ").trim();
     }
 
     private String cleanTime(String time) {
         if (time == null) return "";
-        return time.trim(); // מסיר רווחים מיותרים
+        return time.trim();
     }
 
-    /**
-     * פונקציה שמחזירה את התאריך והשעה בפורמט אחיד לצורך השוואה
-     */
+
     public Date getFormattedDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("EEEE dd/MM/yyyy HH:mm", Locale.getDefault());
         String fullDate = date + " " + time;

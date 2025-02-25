@@ -42,7 +42,6 @@ public class fragment_past_appointments extends Fragment {
     private DatabaseReference appointmentsRef;
 
     public fragment_past_appointments() {
-        // קונסטרקטור ריק נדרש על ידי Fragment
     }
 
     @Override
@@ -83,21 +82,21 @@ public class fragment_past_appointments extends Fragment {
                     if (appointment == null) continue;
 
                     boolean isUserInvolved = userId.equals(appointment.getBarberId()) || userId.equals(appointment.getClientId());
-                    if (!isUserInvolved) continue; // אם היוזר לא קשור לפגישה - מדלגים עליה
+                    if (!isUserInvolved) continue;
 
                     try {
                         Date appointmentDate = sdf.parse(appointment.getDate() + " " + appointment.getTime());
 
-                        // ✅ רק אם הפגישה מהעבר - נוסיף אותה לרשימה
+
                         if (appointmentDate != null && appointmentDate.before(new Date())) {
                             pastAppointmentsList.add(appointment);
                         }
                     } catch (ParseException e) {
-                        Log.e("FirebaseData", "❌ Error parsing date", e);
+                        Log.e("FirebaseData", "Error parsing date", e);
                     }
                 }
 
-                // ✅ בדיקה אם יש פגישות עבר או לא
+
                 if (pastAppointmentsList.isEmpty()) {
                     tvNoPastAppointments.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);

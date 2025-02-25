@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- כרטיס מידע על המשתמש -->
         <androidx.cardview.widget.CardView
             android:id="@+id/top_card"
             android:layout_width="match_parent"
@@ -79,7 +78,6 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- באנר תמונה -->
         <ImageView
             android:id="@+id/imageView4"
             android:layout_width="match_parent"
@@ -89,14 +87,12 @@
             android:src="@drawable/banner"
             android:layout_marginBottom="16dp"/>
 
-        <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"/>
 
-        <!-- כרטיס התור הקרוב -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -110,14 +106,12 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- מחלקים לשתי עמודות -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:weightSum="2">
 
-                    <!-- פרטי הפגישה -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -150,7 +144,6 @@
                             android:textSize="16sp" />
                     </LinearLayout>
 
-                    <!-- פרטי היוזר השני -->
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -184,7 +177,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- כפתורים לפעולה -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

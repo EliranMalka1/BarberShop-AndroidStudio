@@ -1,4 +1,4 @@
-// UserAdapter.java
+
 package com.example.navigtion_app.Adapters;
 
 import android.view.LayoutInflater;

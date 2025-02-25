@@ -11,7 +11,6 @@
     tools:context=".frams.Fragment_reg"
     android:background="@color/light_background">
 
-    <!-- כותרת ראשית -->
     <TextView
         android:id="@+id/textView3"
         android:layout_width="match_parent"
@@ -23,7 +22,6 @@
         android:textColor="@color/primary_blue"
         android:layout_marginBottom="8dp"/>
 
-    <!-- תת-כותרת -->
     <TextView
         android:id="@+id/textView6"
         android:layout_width="match_parent"
@@ -34,7 +32,6 @@
         android:textColor="@color/black"
         android:layout_marginBottom="28dp"/>
 
-    <!-- שדה אימייל -->
     <EditText
         android:id="@+id/fullName"
         android:layout_width="match_parent"
@@ -59,7 +56,6 @@
         android:textColor="@color/black"
         android:textColorHint="@color/gray" />
 
-    <!-- שדה סיסמה -->
     <EditText
         android:id="@+id/password"
         android:layout_width="match_parent"
@@ -73,7 +69,6 @@
         android:textColor="@color/black"
         android:textColorHint="@color/gray" />
 
-    <!-- שדה אישור סיסמה -->
     <EditText
         android:id="@+id/repass"
         android:layout_width="match_parent"
@@ -87,7 +82,6 @@
         android:textColor="@color/black"
         android:textColorHint="@color/gray" />
 
-    <!-- שדה טלפון -->
     <EditText
         android:id="@+id/phone"
         android:layout_width="match_parent"
@@ -101,7 +95,6 @@
         android:textColor="@color/black"
         android:textColorHint="@color/gray" />
 
-    <!-- כפתור הרשמה -->
     <Button
         android:id="@+id/register"
         android:layout_width="match_parent"

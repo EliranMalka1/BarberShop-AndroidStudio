@@ -8,7 +8,6 @@
     tools:context=".frams.managerPage"
     android:background="@android:color/white">
 
-    <!-- אזור עליון -->
     <androidx.cardview.widget.CardView
         android:id="@+id/top_card"
         android:layout_width="match_parent"
@@ -25,7 +24,6 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- תמונת פרופיל ושם -->
             <LinearLayout
                 android:id="@+id/linearLayout"
                 android:layout_width="wrap_content"

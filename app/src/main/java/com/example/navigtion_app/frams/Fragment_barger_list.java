@@ -68,7 +68,7 @@ public class Fragment_barger_list extends Fragment {
         usersRef = FirebaseDatabase.getInstance().getReference("users");
         appointmentsRef = FirebaseDatabase.getInstance().getReference("appointments");
 
-        // יצירת Retrofit instance פעם אחת בלבד
+
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://identitytoolkit.googleapis.com/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -137,7 +137,7 @@ public class Fragment_barger_list extends Fragment {
                     }
                 }
 
-                // מוחקים קודם מה-Firebase Authentication
+
                 deleteUserFromAuth(user);
             }
 
@@ -157,8 +157,7 @@ public class Fragment_barger_list extends Fragment {
             }
 
             Log.d("FirebaseAuth", "Sending Admin Token: " + adminToken);
-            String projectId = "app-data-bd40e"; // ⚠️ עדכן את זה עם ה-Project ID האמיתי שלך
-
+            String projectId = "app-data-bd40e";
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("https://identitytoolkit.googleapis.com/")
                     .addConverterFactory(GsonConverterFactory.create())
@@ -166,7 +165,7 @@ public class Fragment_barger_list extends Fragment {
 
             ApiServiceFirebase apiService = retrofit.create(ApiServiceFirebase.class);
             Map<String, String> requestBody = new HashMap<>();
-            requestBody.put("localId", user.getId()); // זה ה-ID של המשתמש ב-Firebase
+            requestBody.put("localId", user.getId());
 
             Call<Void> call = apiService.deleteUser(projectId, requestBody, "Bearer " + adminToken.trim());
 
@@ -177,7 +176,6 @@ public class Fragment_barger_list extends Fragment {
                         Log.d("FirebaseAuth", "User deleted successfully from Firebase Authentication");
                         Toast.makeText(getContext(), "User deleted successfully", Toast.LENGTH_SHORT).show();
 
-                        //  עכשיו מוחקים גם מה-Database
                         deleteUserFromDatabase(user);
                     } else {
                         try {
@@ -231,18 +229,15 @@ public class Fragment_barger_list extends Fragment {
                         Log.d("Email", " Subject: " + subject);
                         Log.d("Email", " Body: " + body);
 
-                        //  יצירת JSON עם השדות הנכונים
                         Map<String, String> emailRequest = new HashMap<>();
                         emailRequest.put("email", email);
                         emailRequest.put("subject", subject);
                         emailRequest.put("body", body);
 
-                        //  הדפסת JSON כדי לוודא שהנתונים נשלחים נכון
                         Gson gson = new Gson();
                         String jsonRequest = gson.toJson(emailRequest);
                         Log.d("Email", "JSON Sent to Server: " + jsonRequest);
 
-                        // שליחת בקשה ל-Google Apps Script
                         ApiService apiService = new Retrofit.Builder()
                                 .baseUrl("https://script.google.com/macros/s/AKfycbwA9E92iTklA3rxxjS0SXXxAWDlxHHCpA8CvGFQ6PbYroUxq7qCaHrDdqJpS_KEfnAqyQ/")
                                 .addConverterFactory(GsonConverterFactory.create())
@@ -251,7 +246,6 @@ public class Fragment_barger_list extends Fragment {
 
                         Call<ResponseBody> call = apiService.sendEmail(emailRequest);
 
-                        //  Debug: הצגת נתוני השליחה ללוג
                         Log.d("Email", " Sending request to Google Apps Script:");
                         Log.d("Email", "Email: " + email);
                         Log.d("Email", " Subject: " + subject);

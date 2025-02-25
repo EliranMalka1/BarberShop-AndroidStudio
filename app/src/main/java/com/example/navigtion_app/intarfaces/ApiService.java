@@ -7,6 +7,6 @@ import retrofit2.http.POST;
 import java.util.Map;
 
 public interface ApiService {
-    @POST("exec") // נתיב הבקשה ל-Google Apps Script
+    @POST("exec")
     Call<ResponseBody> sendEmail(@Body Map<String, String> emailRequest);
 }

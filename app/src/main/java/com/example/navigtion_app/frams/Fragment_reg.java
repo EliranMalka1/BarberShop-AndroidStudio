@@ -44,7 +44,7 @@ public class Fragment_reg extends Fragment {
                             user.sendEmailVerification().addOnCompleteListener(task -> {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(getContext(), "Verification email sent. Please check your inbox.", Toast.LENGTH_LONG).show();
-                                    mAuth.signOut(); // מנתק את המשתמש עד שיאמת את המייל
+                                    mAuth.signOut();
                                     Navigation.findNavController(view).navigate(R.id.action_fragment_reg_to_fragment_login);
                                 } else {
                                     Toast.makeText(getContext(), "Failed to send verification email.", Toast.LENGTH_SHORT).show();
